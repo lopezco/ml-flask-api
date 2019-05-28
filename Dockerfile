@@ -1,10 +1,14 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.6
+FROM python:3
 
-WORKDIR /app/
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY requirements.txt /app/
+WORKDIR /usr/src/app
+
+COPY requirements.txt .
 RUN pip install -r ./requirements.txt
 
-ENV ENVIRONMENT production
+COPY . .
 
-COPY main.py __init__.py /app/
+ENTRYPOINT ["python"]
+CMD [ "./service.py" ]

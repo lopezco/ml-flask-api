@@ -1,32 +1,21 @@
-## python-flask-docker-sklearn-template
+# Python-Flask Docker template for MAchine Learning model deployment
 A simple example of python api for real time machine learning.
-On init, a simple linear regression model is created and saved on machine. On request arrival for prediction, the simple model is loaded and returning prediction.    
-For more information read [this post](https://blog.solutotlv.com/deployed-scikit-learn-model-flask-docker/?utm_source=Github&utm_medium=python-flask-sklearn-docker-template)
-
+On init, a model inside `./data` folder is loaded (if any) else a simple linear regression model is created.
+For more information read [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
 
 # requirements  
 docker installed
 
-
-# Run on docker - local 
-docker build . -t {some tag name}  -f ./Dockerfile_local  
-detached : docker run -p 3000:5000 -d {some tag name}  
+# Run on docker
+docker build . -t {some tag name}  -f ./Dockerfile  
+detached : docker run -p 5000:5000 -d {some tag name}  
 interactive (recommended for debug): docker run -p 3000:5000 -it {some tag name}  
 
-
-# Run on docker - production 
-Using uWSGI and nginx for production  
-docker build . -t {some tag name}   
-detached : docker run -p 3000:80 -d {some tag name}  
-interactive (recommended for debug): docker run -p 3000:80 -it {some tag name}  
-
-
 # Run on local computer
-python -m venv env  
-source env/bin/activate  
-python -m pip install -r ./requirements.txt  
-python main.py  
-
+conda create -n flask_ml_template python=3
+conda activate flask_ml_template
+pip install -r ./requirements.txt  
+python service.py  
 
 # Use sample api  
 127.0.0.1:3000/isAlive  
