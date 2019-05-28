@@ -1,5 +1,4 @@
-from joblib import load
-import pandas as pd
+from sklearn.externals import joblib
 import numpy as np
 import sys
 from threading import Thread
@@ -18,7 +17,7 @@ class Model:
 
     # Private
     def _load_model(self):
-        loaded = load(self._file_name)
+        loaded = joblib.load(self._file_name)
         self._model = loaded['model']
         self._meta_data = loaded['metadata']
         self._is_ready = True
