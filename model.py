@@ -63,6 +63,8 @@ class Model:
             value = input.get(name)
             if var_type == 'numeric':
                 output[name] =  float(value) if value is not None else default
+            elif var_type == 'string':
+                output[name] = value or default
             else:
                 raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
             # TO DO: add validation logic
