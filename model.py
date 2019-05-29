@@ -1,7 +1,10 @@
-from sklearn.externals import joblib
+import joblib
 import numpy as np
 import sys
+import os
 from threading import Thread
+from functools import partial
+from flask import Request
 
 
 class Model:
@@ -13,19 +16,22 @@ class Model:
         self._file_name = file_name
         self._is_ready = False
         self._model = None
-        self._meta_data = None
+        self._metadata = None
 
     # Private
     def _load_model(self):
         loaded = joblib.load(self._file_name)
         self._model = loaded['model']
-        self._meta_data = loaded['metadata']
+        self._metadata = loaded['metadata']
         self._is_ready = True
 
     # Public
     @property
-    def meta_data(self):
-        return self._meta_data
+    def metadata(self):
+        if not self.is_ready():
+            raise RuntimeError('Model is not ready yet.')
+
+        return self._metadata
 
     def load_model(self):
         Thread(target=self._load_model).start()
@@ -37,7 +43,8 @@ class Model:
         if not self.is_ready():
             raise RuntimeError('Model is not ready yet.')
 
-        input = np.asarray(features).reshape(1, -1)
+        input = np.asarray(list(features.values())).reshape(1, -1)
+        print(input)
         result = self._model.predict(input)
         return int(result[0])
 
@@ -45,6 +52,18 @@ class Model:
         if not self.is_ready():
             raise RuntimeError('Model is not ready yet.')
 
-        input = np.asarray(features).reshape(1, -1)
+        input = np.asarray(list(features.values())).reshape(1, -1)
         result = self._model.predict_proba(input)
         return result
+
+    def validate(self, input):
+        output = {}
+        for feature in self.metadata['features']:
+            name, var_type, default = feature['name'], feature['type'], feature.get('default', np.nan)
+            value = input.get(name)
+            if var_type == 'numeric':
+                output[name] =  float(value) if value is not None else default
+            else:
+                raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
+            # TO DO: add validation logic
+        return output

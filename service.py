@@ -1,49 +1,44 @@
 #!flask/bin/python
 import os
-from flask import Flask
-from flask import request
-from flask import Flask, Response
-from model import Model, validate_features
+from flask import Flask, Response, jsonify, request
+from model import Model
 from time import time
+import json
 
 app = Flask(__name__)
 
-try:
-    from input_validator import validate_features
-except ImportError:
-    def validate_features(f):
-        @wraps(f)
-        def wrapper(*args, **kw):
-            app.logger.info('Input validation was not performed. No validation function defined')
-            return f(*args, **kw)
-        return wrapper
-
 # Load model
-base_dir = '/usr/src/app/data/'
+base_dir =  os.getcwd()
 model_path = os.path.join(base_dir, os.environ.get('MODEL_NAME', 'model.joblib'))
 if not os.path.exists(model_path):
     raise RuntimeError("Model {} not found".format(model_path))
 else:
     model = Model(model_path)
 
+model.load_model()
+
 @app.route('/predict', methods=['GET'])
-@validate_features
 def predict():
+    input = json.loads(request.data or '{}')
+    try:
+        input = model.validate(input)
+    except ValueError as err:
+        return Response(str(err), status = 400)
+
     # Parameters
     output_proba = request.args.get('output_proba', False)
-    correlation_id = request.headers.get('X-Correlation-ID')
     # Predict
     before_time = time()
-    input = list(request.args.values())
     prediction = model.predict_proba(input) if output_proba else model.predict(input)
     result = {'prediction': prediction}
     after_time = time()
     # log
     to_be_logged = {
-        'input': request.args,
-        'request_id': correlation_id,
+        'input': request.data,
+        'params': request.args,
+        'request_id': request.headers.get('X-Correlation-ID'),
         'prediction': prediction,
-        'model': model.meta_data,
+        'model': model.metadata,
         'elapsed_time': after_time - before_time
     }
     app.logger.info(to_be_logged)
@@ -52,15 +47,15 @@ def predict():
 
 @app.route('/health')
 def health_check():
-    return Response("", status = 200)
+    return Response("up", status = 200)
 
 
 @app.route('/ready')
 def readiness_check():
     if model.is_ready():
-        return Response("", status = 200)
+        return Response("ready", status = 200)
     else:
-        return Response("", status = 503)
+        return Response("not ready", status = 503)
 
 
 if __name__ == '__main__':
