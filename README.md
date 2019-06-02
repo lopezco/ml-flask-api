@@ -3,35 +3,62 @@ A simple example of python api for real time machine learning.
 It is base on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
 
 ## Requirements  
-docker installed
-docker-compose installed
+* [docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+* [docker-compose](https://docs.docker.com/compose/install/) (Recommended)
 
 ## Before using
-Pleas put a model in the main directory.
-For this yoi can launch the example using
+Make sure that you have a model in the main directory.
+You can launch the example using the following line in order to create a quick model
 ```bash
-python example/build_model.py
+$ python example/build_model.py
 ```
 
 ## Run on docker
+Build th eimage (this has to be done every time the code or the model change)
 ```bash
-docker-compose build
-docker-compose build up
+$ docker-compose build
+```
+Create and run the container
+```bash
+$ docker-compose build up
 ```
 
-## Run on local computer
+## Run on local Python environment
+Create the environment
 ```bash
-conda create -n flask_ml_template python=3
-conda activate flask_ml_template
-pip install -r ./requirements-service.txt  
-pip install -r ./requirements.txt  
-python service.py  
+$ conda create -n flask_ml_template python=3
+$ conda activate flask_ml_template
+```
+Install requirements
+```bash
+$ pip install -r ./requirements-service.txt  
+$ pip install -r ./requirements.txt  
+```
+Run the API service
+```bash
+$ python service.py  
 ```
 
-## Use sample api  
-127.0.0.1:5000/health
-127.0.0.1:5000/predict
-127.0.0.1:5000/predict?output_proba=1
+## Usage of the API  
+This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling the example model.
+
+* Health
+```bash
+$ curl -X GET http://localhost:5000/health
+up
+```
+* Is model ready?
+```bash
+$ curl -X GET http://localhost:5000/ready
+ready
+```
+* Prediction
+```bash
+$ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
+{
+  "prediction": 0
+}
+```
 
 ## Files that can be configured
 * ```variables.env```: Controls API parameters via environment variables
