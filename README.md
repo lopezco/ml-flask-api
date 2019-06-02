@@ -47,16 +47,31 @@ This example considers that the API was launched with the default parameters (lo
 $ curl -X GET http://localhost:5000/health
 up
 ```
+
 * Is model ready?
 ```bash
 $ curl -X GET http://localhost:5000/ready
 ready
 ```
+
 * Prediction
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
 {
   "prediction": 0
+}
+```
+
+* Predict probabilities
+```bash
+$ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?output_proba=1"
+{
+  "prediction": [
+    [
+      0.6606847344865265,
+      0.3393152655134735
+    ]
+  ]
 }
 ```
 
