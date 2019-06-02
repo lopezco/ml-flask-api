@@ -54,7 +54,7 @@ class Model:
 
         input = np.asarray(list(features.values())).reshape(1, -1)
         result = self._model.predict_proba(input)
-        return result
+        return result.tolist()
 
     def validate(self, input):
         output = {}
