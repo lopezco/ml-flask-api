@@ -36,7 +36,11 @@ def predict():
 
     # Predict
     before_time = time()
-    prediction = model.predict_proba(input) if output_proba else model.predict(input)
+    try:
+        prediction = model.predict_proba(input) if output_proba else model.predict(input)
+    except Exception as err:
+        return Response(str(err), status=500)
+
     result = {'prediction': prediction}
     after_time = time()
     # log
