@@ -7,6 +7,8 @@ import json
 
 app = Flask(__name__)
 
+DEBUG = os.environ.get('DEBUG', True)
+
 # Load model
 base_dir =  os.getcwd()
 model_path = os.path.join(base_dir, os.environ.get('MODEL_NAME', 'model.joblib'))
@@ -17,16 +19,21 @@ else:
 
 model.load_model()
 
-@app.route('/predict', methods=['GET'])
+@app.route('/predict', methods=['POST'])
 def predict():
+    if DEBUG:
+        app.logger.info('Request:\n=======\nargs: {}\ndata: {}'.format(
+            request.args, request.data))
+
     input = json.loads(request.data or '{}')
     try:
         input = model.validate(input)
     except ValueError as err:
-        return Response(str(err), status = 400)
+        return Response(str(err), status=400)
 
     # Parameters
     output_proba = request.args.get('output_proba', False)
+
     # Predict
     before_time = time()
     prediction = model.predict_proba(input) if output_proba else model.predict(input)
@@ -47,19 +54,19 @@ def predict():
 
 @app.route('/health')
 def health_check():
-    return Response("up", status = 200)
+    return Response("up", status=200)
 
 
 @app.route('/ready')
 def readiness_check():
     if model.is_ready():
-        return Response("ready", status = 200)
+        return Response("ready", status=200)
     else:
-        return Response("not ready", status = 503)
+        return Response("not ready", status=503)
 
 
 if __name__ == '__main__':
     app.run(
-        debug=os.environ.get('DEBUG', True),
+        debug=DEBUG,
         host=os.environ.get('HOST', '0.0.0.0'),
         port=os.environ.get('PORT', '5000'))
