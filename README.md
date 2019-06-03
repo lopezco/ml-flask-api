@@ -1,4 +1,4 @@
-# Python-Flask Docker template for MAchine Learning model deployment
+# Python-Flask Docker template for Machine Learning model deployment
 A simple example of python api for real time machine learning.
 It is base on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
 
@@ -74,7 +74,7 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
   ]
 }
 ```
-
+ 
 ## Files that can be configured
 * ```variables.env```: Controls API parameters via environment variables
 * ```requirements.txt```: Controls Python packages installed inside the container
