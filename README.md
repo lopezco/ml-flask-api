@@ -1,6 +1,6 @@
 # Python-Flask Docker template for Machine Learning model deployment
-A simple example of python api for real time machine learning.
-It is base on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
+A simple example of a Python web service for real time machine learning model deployment.
+It is based on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
 
 ## Requirements  
 * [docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
@@ -8,13 +8,13 @@ It is base on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-
 
 ## Before using
 Make sure that you have a model in the main directory.
-You can launch the example using the following line in order to create a quick model
+You can launch the example using the following line in order to create a quick classification model.
 ```bash
 $ python example/build_model.py
 ```
 
 ## Run on docker
-Build th eimage (this has to be done every time the code or the model change)
+Build the image (this has to be done every time the code or the model change)
 ```bash
 $ docker-compose build
 ```
@@ -40,7 +40,8 @@ $ python service.py
 ```
 
 ## Usage of the API  
-This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling the example model.
+This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling 
+the example model.
 
 * Health
 ```bash
@@ -78,12 +79,12 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 ## Files that can be configured
 * ```variables.env```: Controls API parameters via environment variables
 * ```requirements.txt```: Controls Python packages installed inside the container
-* ```model.joblib```: Model saved inside a dictionary with this fomat
-```python
+* ```model.joblib```: Model saved inside a dictionary with this format
+```json
 {
-    'model': model,
-    'metadata': {'features': [{'name': 'feature1', 'type': 'numeric'},
-                              {'name': 'feature2', 'type': 'numeric', 'default': -1},
-                              {'name': 'feature3', 'type': 'numeric'}]}
+    "model": trained_model,
+    "metadata": {"features": [{"name": "feature1", "type": "numeric"},
+                              {"name": "feature2", "type": "numeric", "default": -1},
+                              {"name": "feature3", "type": "numeric"}]}
 }
 ```
