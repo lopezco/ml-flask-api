@@ -10,7 +10,11 @@ It is based on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to
 Make sure that you have a model in the main directory.
 You can launch the example using the following line in order to create a quick classification model.
 ```bash
-$ python example/build_model.py
+$ python example/build_linear_model.py
+```
+or
+```bash
+$ python example/build_rf_model.py
 ```
 
 ## Run on docker
