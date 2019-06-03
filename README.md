@@ -102,6 +102,32 @@ $ curl -X GET http://localhost:5000/features
 ]
 ```
 
+* Get features of the Model with features importances
+```bash
+$ curl -X GET "http://localhost:5000/features?output_importance=1"
+[
+  {
+    "default": -1,
+    "importance": 0.2,
+    "name": "feature1",
+    "type": "numeric"
+  },
+  {
+    "default": -1,
+    "importance": 0.1,
+    "name": "feature2",
+    "type": "numeric"
+  },
+  {
+    "default": -1,
+    "importance": 0.3,
+    "name": "feature3",
+    "type": "numeric"
+  }
+]
+```
+
+
 ## Files that can be configured
 * ```variables.env```: Controls API parameters via environment variables
 * ```requirements.txt```: Controls Python packages installed inside the container

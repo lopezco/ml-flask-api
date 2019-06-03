@@ -2,6 +2,7 @@ import joblib
 import numpy as np
 import sys
 from threading import Thread
+from copy import deepcopy
 
 
 def _check_if_model_is_ready(func):
@@ -59,7 +60,16 @@ class Model:
 
     @_check_if_model_is_ready
     def features(self):
-        return self.metadata.get('features', [])
+        return deepcopy(self.metadata.get('features', []))
+
+    @_check_if_model_is_ready
+    def feature_importances(self):
+        if hasattr(self._model, 'feature_importances_'):
+            features = [x['name'] for x in self.features()]
+            importance = self._model.feature_importances_
+            return {k: v for k, v in zip(features, importance)}
+        else:
+            raise ValueError('Model does not support feature importance computation.')
 
     @_check_if_model_is_ready
     def validate(self, input):
