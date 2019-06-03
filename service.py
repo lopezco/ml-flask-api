@@ -10,7 +10,7 @@ app = Flask(__name__)
 DEBUG = os.environ.get('DEBUG', True)
 
 # Load model
-base_dir =  os.getcwd()
+base_dir = os.getcwd()
 model_path = os.path.join(base_dir, os.environ.get('MODEL_NAME', 'model.joblib'))
 if not os.path.exists(model_path):
     raise RuntimeError("Model {} not found".format(model_path))
@@ -18,6 +18,7 @@ else:
     model = Model(model_path)
 
 model.load_model()
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
