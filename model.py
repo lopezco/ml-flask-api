@@ -4,6 +4,16 @@ import sys
 from threading import Thread
 
 
+def _check_if_model_is_ready(func):
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        if self.is_ready():
+            return func(*args, **kwargs)
+        else:
+            raise RuntimeError('Model is not ready yet.')
+    return wrapper
+
+
 class Model:
     def __init__(self, file_name):
         def get_last_column(X):
@@ -23,41 +33,35 @@ class Model:
         self._is_ready = True
 
     # Public
-    @property
-    def metadata(self):
-        if not self.is_ready():
-            raise RuntimeError('Model is not ready yet.')
-
-        return self._metadata
-
     def load_model(self):
         Thread(target=self._load_model).start()
 
     def is_ready(self):
         return self._is_ready
 
-    def predict(self, features):
-        if not self.is_ready():
-            raise RuntimeError('Model is not ready yet.')
+    @property
+    @_check_if_model_is_ready
+    def metadata(self):
+        return self._metadata
 
+    @_check_if_model_is_ready
+    def predict(self, features):
         input = np.asarray(list(features.values())).reshape(1, -1)
         print(input)
         result = self._model.predict(input)
         return int(result[0])
 
+    @_check_if_model_is_ready
     def predict_proba(self, features):
-        if not self.is_ready():
-            raise RuntimeError('Model is not ready yet.')
-
         input = np.asarray(list(features.values())).reshape(1, -1)
         result = self._model.predict_proba(input)
         return result.tolist()
 
+    @_check_if_model_is_ready
     def features(self):
-        if not self.is_ready():
-            raise RuntimeError('Model is not ready yet.')
         return self.metadata.get('features', [])
 
+    @_check_if_model_is_ready
     def validate(self, input):
         output = {}
         for feature in self.metadata['features']:
