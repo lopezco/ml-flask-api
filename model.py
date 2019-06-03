@@ -53,6 +53,11 @@ class Model:
         result = self._model.predict_proba(input)
         return result.tolist()
 
+    def features(self):
+        if not self.is_ready():
+            raise RuntimeError('Model is not ready yet.')
+        return self.metadata.get('features', [])
+
     def validate(self, input):
         output = {}
         for feature in self.metadata['features']:

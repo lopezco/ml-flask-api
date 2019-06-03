@@ -40,7 +40,7 @@ $ python service.py
 ```
 
 ## Usage of the API  
-This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling 
+This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling
 the example model.
 
 * Health
@@ -75,7 +75,29 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
   ]
 }
 ```
- 
+
+* Get features of the Model
+```bash
+$ curl -X GET http://localhost:5000/features
+[
+  {
+    "default": -1,
+    "name": "feature1",
+    "type": "numeric"
+  },
+  {
+    "default": -1,
+    "name": "feature2",
+    "type": "numeric"
+  },
+  {
+    "default": -1,
+    "name": "feature3",
+    "type": "numeric"
+  }
+]
+```
+
 ## Files that can be configured
 * ```variables.env```: Controls API parameters via environment variables
 * ```requirements.txt```: Controls Python packages installed inside the container

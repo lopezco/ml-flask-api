@@ -57,6 +57,16 @@ def predict():
     return jsonify(result)
 
 
+@app.route('/features',  methods=['GET'])
+def features():
+    try:
+        features = model.features()
+    except Exception as err:
+        return Response(str(err), status=500)
+    else:
+        return jsonify(features)
+
+
 @app.route('/health')
 def health_check():
     return Response("up", status=200)
