@@ -1,10 +1,7 @@
 import joblib
 import numpy as np
 import sys
-import os
 from threading import Thread
-from functools import partial
-from flask import Request
 
 
 class Model:
