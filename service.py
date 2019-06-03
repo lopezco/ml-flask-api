@@ -17,13 +17,14 @@ if not os.path.exists(model_path):
 else:
     model = Model(model_path)
 
+app.logger.info('Loading model...')
 model.load_model()
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if DEBUG:
-        app.logger.info('Request:\n=======\nargs: {}\ndata: {}'.format(
+        app.logger.debug('Request:\n=======\nargs: {}\ndata: {}'.format(
             request.args, request.data))
 
     input = json.loads(request.data or '{}')
