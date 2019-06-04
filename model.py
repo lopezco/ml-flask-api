@@ -25,12 +25,14 @@ class Model:
         self._is_ready = False
         self._model = None
         self._metadata = None
+        self._preprocessing = None
 
     # Private
     def _load_model(self):
         loaded = joblib.load(self._file_name)
         self._model = loaded['model']
         self._metadata = loaded['metadata']
+        self._preprocessing = loaded.get('preprocessing', None)
         if hasattr(self._model, 'feature_importances_'):
             importance = self._model.feature_importances_
             for imp, feat in zip(importance, loaded['metadata']['features']):
@@ -50,14 +52,20 @@ class Model:
         return self._metadata
 
     @_check_if_model_is_ready
+    def preprocess(self, input):
+        return input if self._preprocessing is None else self._preprocessin(input)
+
+    @_check_if_model_is_ready
     def predict(self, features):
         input = np.asarray(list(features.values())).reshape(1, -1)
+        input = self.preprocess(input)
         result = self._model.predict(input)
         return int(result[0])
 
     @_check_if_model_is_ready
     def predict_proba(self, features):
         input = np.asarray(list(features.values())).reshape(1, -1)
+        input = self.preprocess(input)
         result = self._model.predict_proba(input)
         return result.tolist()
 
