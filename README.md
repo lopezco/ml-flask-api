@@ -69,7 +69,7 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 
 * Predict probabilities
 ```bash
-$ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?output_proba=1"
+$ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
 {
   "prediction": [
     [
@@ -80,31 +80,10 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 }
 ```
 
-* Get features of the Model
-```bash
-$ curl -X GET http://localhost:5000/features
-[
-  {
-    "default": -1,
-    "name": "feature1",
-    "type": "numeric"
-  },
-  {
-    "default": -1,
-    "name": "feature2",
-    "type": "numeric"
-  },
-  {
-    "default": -1,
-    "name": "feature3",
-    "type": "numeric"
-  }
-]
-```
 
 * Get features of the Model with features importances
 ```bash
-$ curl -X GET "http://localhost:5000/features?output_importance=1"
+$ curl -X GET "http://localhost:5000/features"
 [
   {
     "default": -1,

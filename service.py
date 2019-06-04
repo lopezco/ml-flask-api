@@ -34,7 +34,7 @@ def predict():
         return Response(str(err), status=400)
 
     # Parameters
-    output_proba = int(request.args.get('output_proba', 0))
+    output_proba = int(request.args.get('proba', 0))
 
     # Predict
     before_time = time()
@@ -60,20 +60,10 @@ def predict():
 
 @app.route('/features',  methods=['GET'])
 def features():
-    # Parameters
-    output_importance = int(request.args.get('output_importance', 0))
     try:
         features = model.features()
     except Exception as err:
         return Response(str(err), status=500)
-
-    if output_importance:
-        try:
-            importances = model.feature_importances()
-            for f in features:
-                f['importance'] = importances[f['name']]
-        except Exception as err:
-            return Response(str(err), status=500)
 
     return jsonify(features)
 

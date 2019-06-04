@@ -31,6 +31,10 @@ class Model:
         loaded = joblib.load(self._file_name)
         self._model = loaded['model']
         self._metadata = loaded['metadata']
+        if hasattr(self._model, 'feature_importances_'):
+            importance = self._model.feature_importances_
+            for imp, feat in zip(importance, loaded['metadata']['features']):
+                feat['importance'] = imp
         self._is_ready = True
 
     # Public
@@ -48,7 +52,6 @@ class Model:
     @_check_if_model_is_ready
     def predict(self, features):
         input = np.asarray(list(features.values())).reshape(1, -1)
-        print(input)
         result = self._model.predict(input)
         return int(result[0])
 
@@ -61,15 +64,6 @@ class Model:
     @_check_if_model_is_ready
     def features(self):
         return deepcopy(self.metadata.get('features', []))
-
-    @_check_if_model_is_ready
-    def feature_importances(self):
-        if hasattr(self._model, 'feature_importances_'):
-            features = [x['name'] for x in self.features()]
-            importance = self._model.feature_importances_
-            return {k: v for k, v in zip(features, importance)}
-        else:
-            raise ValueError('Model does not support feature importance computation.')
 
     @_check_if_model_is_ready
     def validate(self, input):
