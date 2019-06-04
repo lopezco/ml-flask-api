@@ -23,19 +23,13 @@ model.load_model()
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if DEBUG:
-        app.logger.debug('Request:\n=======\nargs: {}\ndata: {}'.format(
-            request.args, request.data))
-
     input = json.loads(request.data or '{}')
     try:
         input = model.validate(input)
     except ValueError as err:
         return Response(str(err), status=400)
-
     # Parameters
     output_proba = int(request.args.get('proba', 0))
-
     # Predict
     before_time = time()
     try:
@@ -44,6 +38,39 @@ def predict():
         return Response(str(err), status=500)
 
     result = {'prediction': prediction}
+    after_time = time()
+    # log
+    to_be_logged = {
+        'input': request.data,
+        'params': request.args,
+        'request_id': request.headers.get('X-Correlation-ID'),
+        'prediction': prediction,
+        'model': model.metadata,
+        'elapsed_time': after_time - before_time
+    }
+    app.logger.info(to_be_logged)
+    return jsonify(result)
+
+
+@app.route('/explain', methods=['POST'])
+def explain():
+    input = json.loads(request.data or '{}')
+    try:
+        input = model.validate(input)
+    except ValueError as err:
+        return Response(str(err), status=400)
+    # Explain
+    before_time = time()
+    #try:
+    explanation = model.explain(input)
+    #except Exception as err:
+    #    return Response(str(err), status=500)
+    # Predict
+    try:
+        prediction = model.predict_proba(input)
+    except Exception as err:
+        return Response(str(err), status=500)
+    result = {'prediction': prediction, 'explanation': explanation}
     after_time = time()
     # log
     to_be_logged = {
