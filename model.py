@@ -4,6 +4,13 @@ import sys
 from threading import Thread
 from copy import deepcopy
 
+try:
+    import shap
+except ImportError:
+    SHAP_AVAILABLE = False
+else:
+    SHAP_AVAILABLE = True
+
 
 def _check_if_model_is_ready(func):
     def wrapper(*args, **kwargs):
@@ -16,6 +23,7 @@ def _check_if_model_is_ready(func):
 
 
 class Model:
+
     def __init__(self, file_name):
         def get_last_column(X):
             return X[:, -1].reshape(-1, 1)
@@ -26,18 +34,26 @@ class Model:
         self._model = None
         self._metadata = None
         self._preprocessing = None
+        # Explainability
+        self._shap_models = ['Booster', 'Booster']
+        for m in ('RandomForest', 'XGB', 'CatBoost', 'LGBM', 'DecisionTree'):
+            self._shap_models.extend([m + 'Classifier', m + 'Regressor'])
 
     # Private
     def _load_model(self):
         loaded = joblib.load(self._file_name)
         self._model = loaded['model']
         self._metadata = loaded['metadata']
+        self._class_names = loaded['metadata'].get('class_names', None)
+        self._is_ready = True
+
         self._preprocessing = loaded.get('preprocessing', None)
-        if hasattr(self._model, 'feature_importances_'):
-            importance = self._model.feature_importances_
+        if hasattr(self.get_classifier(), 'feature_importances_'):
+            importance = self.get_classifier().feature_importances_
             for imp, feat in zip(importance, loaded['metadata']['features']):
                 feat['importance'] = imp
-        self._is_ready = True
+        is_shap_model = type(self.get_classifier()).__name__ in self._shap_models
+        self._is_explainable = SHAP_AVAILABLE and is_shap_model
 
     # Public
     def load_model(self):
@@ -59,15 +75,21 @@ class Model:
     def predict(self, features):
         input = np.asarray(list(features.values())).reshape(1, -1)
         input = self.preprocess(input)
-        result = self._model.predict(input)
-        return int(result[0])
+        result = int(self._model.predict(input)[0])
+        if self._class_names is not None:
+            result =  self._class_names[result]
+        return result
 
     @_check_if_model_is_ready
     def predict_proba(self, features):
         input = np.asarray(list(features.values())).reshape(1, -1)
         input = self.preprocess(input)
-        result = self._model.predict_proba(input)
-        return result.tolist()
+        prediction = self._model.predict_proba(input)[0].tolist()
+        if self._class_names is None:
+            result = {c: v for c, v in enumerate(prediction)}
+        else:
+            result = {c: v for c, v in zip(self._class_names, prediction)}
+        return result
 
     @_check_if_model_is_ready
     def features(self):
@@ -87,3 +109,26 @@ class Model:
                 raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
             # TO DO: add validation logic
         return output
+
+    @_check_if_model_is_ready
+    def get_classifier(self):
+        model_name = type(self._model).__name__
+        if model_name == 'Pipeline':
+            return self._model.steps[-1][1]
+        else:
+            return self._model
+
+    @_check_if_model_is_ready
+    def explain(self, features):
+        if not self._is_explainable:
+            raise RuntimeError('Model {} is not supported for explanations'.format(type(self._model).__name__))
+        input = np.asarray(list(features.values())).reshape(1, -1)
+        # Apply pre-processing
+        preprocessed = self.preprocess(input)
+        if hasattr(self._model, 'transform'):
+            preprocessed = self._model.transform(preprocessed)
+        explainer = shap.TreeExplainer(self.get_classifier())
+        shap_values = explainer.shap_values(preprocessed)[0][0].tolist()
+        features = [x['name'] for x in self.features()]
+        explanations = {f: v for f, v in zip(features, shap_values)}
+        return explanations

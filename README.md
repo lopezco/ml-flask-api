@@ -1,4 +1,4 @@
-# Python-Flask Docker template for Machine Learning model deployment
+# Python-Flask Docker template for Machine Learning model deployment including SHAP explanations
 A simple example of a Python web service for real time machine learning model deployment.
 It is based on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
 
@@ -106,6 +106,21 @@ $ curl -X GET "http://localhost:5000/features"
 ]
 ```
 
+* Get SHAP explanations
+```bash
+$curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/explain"
+{
+  "explanation": {
+    "feature1": 0.10000000149011613,
+    "feature2": 0.03333333383003871,
+    "feature3": -0.1666666691501935
+  },
+  "prediction": {
+    "0": 0.7,
+    "1": 0.3
+  }
+}
+```
 
 ## Files that can be configured
 * ```variables.env```: Controls API parameters via environment variables
