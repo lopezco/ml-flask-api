@@ -47,19 +47,55 @@ $ python service.py
 This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling
 the example model.
 
-* Health
+* Health (`/health`)
 ```bash
 $ curl -X GET http://localhost:5000/health
 up
 ```
 
-* Is model ready?
+* Is model ready? (`/ready`)
 ```bash
 $ curl -X GET http://localhost:5000/ready
 ready
 ```
 
-* Prediction
+* Get information about the model (`/info`)
+```bash
+$ curl -X GET http://localhost:5000/info
+{
+  "metadata": {
+    "features": [
+      {
+        "default": -1,
+        "importance": 0.2,
+        "name": "feature1",
+        "type": "numeric"
+      },
+      {
+        "default": -1,
+        "importance": 0.1,
+        "name": "feature2",
+        "type": "numeric"
+      },
+      {
+        "default": -1,
+        "importance": 0.3,
+        "name": "feature3",
+        "type": "numeric"
+      }
+    ]
+  },
+  "model": {
+    "class": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
+    "cls_name": "RandomForestClassifier",
+    "cls_type": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
+    "is_explainable": false,
+    "preprocessing_script": false
+  }
+}
+```
+
+* Prediction (`/predict`)
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
 {
@@ -67,7 +103,7 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 }
 ```
 
-* Predict probabilities
+* Predict probabilities (`/predict?proba=1` or `/predict_proba`)
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
 {
@@ -81,7 +117,7 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 ```
 
 
-* Get features of the Model with features importances
+* Get features of the Model with features importances (`/features`)
 ```bash
 $ curl -X GET "http://localhost:5000/features"
 [
@@ -106,9 +142,9 @@ $ curl -X GET "http://localhost:5000/features"
 ]
 ```
 
-* Get SHAP explanations
+* Get SHAP explanations (`/predict?proba=1&explain=1` or `/explain`)
 ```bash
-$curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/explain"
+$curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1&explain=1"
 {
   "explanation": {
     "feature1": 0.10000000149011613,

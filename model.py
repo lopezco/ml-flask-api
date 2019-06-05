@@ -67,9 +67,27 @@ class Model:
     def metadata(self):
         return self._metadata
 
+    @property
+    @_check_if_model_is_ready
+    def info(self):
+        result = {}
+        # Metadata
+        result['metadata'] = self._metadata
+        # Info Form model
+        classifier_type = type(self.get_classifier())
+        result['model'] = {
+            'class': str(type(self._model)),
+            'cls_type': str(classifier_type),
+            'cls_name': classifier_type.__name__,
+            'is_explainable': self._is_explainable,
+            'preprocessing_script': self._preprocessing is not None,
+            'class_names': self._class_names
+        }
+        return result
+
     @_check_if_model_is_ready
     def preprocess(self, input):
-        return input if self._preprocessing is None else self._preprocessin(input)
+        return input if self._preprocessing is None else self._preprocessing(input)
 
     @_check_if_model_is_ready
     def predict(self, features):

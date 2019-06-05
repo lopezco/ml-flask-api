@@ -1,6 +1,6 @@
 #!flask/bin/python
 import os
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, request, redirect, url_for
 from model import Model
 from time import time
 import json
@@ -30,59 +30,53 @@ def predict():
         return Response(str(err), status=400)
     # Parameters
     output_proba = int(request.args.get('proba', 0))
+    output_explanation = int(request.args.get('explain', 0))
     # Predict
     before_time = time()
     try:
         prediction = model.predict_proba(input) if output_proba else model.predict(input)
     except Exception as err:
         return Response(str(err), status=500)
-
     result = {'prediction': prediction}
+    # Eplain
+    if output_explanation:
+        try:
+            explanation = model.explain(input)
+        except Exception as err:
+            return Response(str(err), status=500)
+        else:
+            result['explanation'] = explanation
     after_time = time()
     # log
     to_be_logged = {
         'input': request.data,
         'params': request.args,
         'request_id': request.headers.get('X-Correlation-ID'),
-        'prediction': prediction,
+        'result': result,
         'model': model.metadata,
         'elapsed_time': after_time - before_time
     }
     app.logger.info(to_be_logged)
     return jsonify(result)
+
+
+@app.route('/predict_proba', methods=['POST'])
+def predict_proba():
+    return redirect(url_for('predict', proba=1))
 
 
 @app.route('/explain', methods=['POST'])
 def explain():
-    input = json.loads(request.data or '{}')
+    return redirect(url_for('predict', proba=1, explain=1))
+
+
+@app.route('/info',  methods=['GET'])
+def info():
     try:
-        input = model.validate(input)
-    except ValueError as err:
-        return Response(str(err), status=400)
-    # Explain
-    before_time = time()
-    #try:
-    explanation = model.explain(input)
-    #except Exception as err:
-    #    return Response(str(err), status=500)
-    # Predict
-    try:
-        prediction = model.predict_proba(input)
+        data = model.info
     except Exception as err:
         return Response(str(err), status=500)
-    result = {'prediction': prediction, 'explanation': explanation}
-    after_time = time()
-    # log
-    to_be_logged = {
-        'input': request.data,
-        'params': request.args,
-        'request_id': request.headers.get('X-Correlation-ID'),
-        'prediction': prediction,
-        'model': model.metadata,
-        'elapsed_time': after_time - before_time
-    }
-    app.logger.info(to_be_logged)
-    return jsonify(result)
+    return jsonify(data)
 
 
 @app.route('/features',  methods=['GET'])
@@ -111,5 +105,5 @@ def readiness_check():
 if __name__ == '__main__':
     app.run(
         debug=DEBUG,
-        host=os.environ.get('HOST', '0.0.0.0'),
+        host=os.environ.get('HOST', 'localhost'),
         port=os.environ.get('PORT', '5000'))
