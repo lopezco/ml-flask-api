@@ -102,6 +102,9 @@ class Model:
         Returns:
             dict: Metadata of the model containing information about the
                 features and classes (optional)
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         return self._metadata
 
@@ -127,6 +130,9 @@ class Model:
                     preprocessing_script (bool): `True` if a preprocessing
                         function was defined in the model's metadata.
                     class_names (list or None): Class names if defined.
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         result = {}
         # Metadata
@@ -159,6 +165,9 @@ class Model:
         Returns:
             dict: Processed data if a preprocessing function was definded in the
                 model's metadata. The format must be the same as the input.
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         return input if self._preprocessing is None else self._preprocessing(input)
 
@@ -177,6 +186,9 @@ class Model:
         Returns:
             int or str: Predicted class. The returned value is an integer when
                 the class names are not expecified in the model's metadata.
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         input = self.preprocess(input)
         input = np.asarray(list(features.values())).reshape(1, -1)
@@ -202,6 +214,9 @@ class Model:
             dict: Predicted class probabilities. The returned object
                 contais one value per class. The keys of the dictionary are the
                 classes of the model.
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         input = np.asarray(list(features.values())).reshape(1, -1)
         input = self.preprocess(input)
@@ -221,6 +236,9 @@ class Model:
                 the `name` and `type` of the variable. If the model supports
                 feature importances calculation (if the clasifier has
                 `feature_importances_` atribute), they will also be present.
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         return deepcopy(self.metadata.get('features', []))
 
@@ -239,7 +257,15 @@ class Model:
 
         Returns:
             dict: Validated data with the same format as the input.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+            ValueError: If there are Unknown variable types in the metadata.
+            AttributeError: If there is no 'features' key in the metadata.
         """
+        if self.metadata.get('features') is None:
+            raise AttributeError("Missing key 'features' in model's metadata")
+
         output = {}
         for feature in self.metadata['features']:
             name, var_type, default = feature['name'], feature['type'], feature.get('default', np.nan)
@@ -263,6 +289,9 @@ class Model:
 
         Returns:
             object: Classifier
+
+        Raises:
+            RuntimeError: If the model is not ready.
         """
         model_name = type(self._model).__name__
         if model_name == 'Pipeline':
@@ -285,9 +314,14 @@ class Model:
         Returns:
             dict: Explanations. The returned object contais one value per
                 feature of the model.
+
+        Raises:
+            RuntimeError: If the model classifier doesn't support SHAP
+                explanations or the model is not ready.
         """
         if not self._is_explainable:
             raise RuntimeError('Model {} is not supported for explanations'.format(type(self._model).__name__))
+
         input = np.asarray(list(features.values())).reshape(1, -1)
         # Apply pre-processing
         preprocessed = self.preprocess(input)
