@@ -111,3 +111,6 @@ venv.bak/
 **/__pycache__
 **/.vscode
 **/env
+
+# Data
+model.joblib
