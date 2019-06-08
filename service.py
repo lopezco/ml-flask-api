@@ -1,4 +1,8 @@
 #!flask/bin/python
+"""
+Flask application to serve Machine Learning models
+"""
+
 import os
 from flask import Flask, Response, jsonify, request, redirect, url_for
 from model import Model
@@ -11,6 +15,10 @@ DEBUG = os.environ.get('DEBUG', True)
 
 # Load model
 base_dir = os.getcwd()
+
+if os.path.basename(base_dir) == 'docs':
+    base_dir = os.path.dirname(base_dir)
+    
 model_path = os.path.join(base_dir, os.environ.get('MODEL_NAME', 'model.joblib'))
 if not os.path.exists(model_path):
     raise RuntimeError("Model {} not found".format(model_path))

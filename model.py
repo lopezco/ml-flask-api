@@ -3,6 +3,8 @@ import numpy as np
 import sys
 from threading import Thread
 from copy import deepcopy
+from functools import wraps
+
 
 try:
     import shap
@@ -13,6 +15,7 @@ else:
 
 
 def _check_if_model_is_ready(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         self = args[0]
         if self.is_ready():
@@ -23,15 +26,15 @@ def _check_if_model_is_ready(func):
 
 
 class Model:
+    """
+    Model Class that handles the loaded model.
+
+    Args:
+        file_name (str): File path of the serialized model.
+            It must be a file that can be loaded using :mod:`joblib`
+    """
 
     def __init__(self, file_name):
-        """
-        Model handler class.
-
-        Args:
-            file_name (str): File path of the serialized model.
-                It must be a file that can be loaded using :mod:joblib
-        """
         def get_last_column(X):
             return X[:, -1].reshape(-1, 1)
 
@@ -97,11 +100,10 @@ class Model:
     @property
     @_check_if_model_is_ready
     def metadata(self):
-        """Get metadata of the model_name
+        """Get metadata of the model_name.
 
         Returns:
-            dict: Metadata of the model containing information about the
-                features and classes (optional)
+            dict: Metadata of the model containing information about the features and classes (optional)
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -111,25 +113,26 @@ class Model:
     @property
     @_check_if_model_is_ready
     def info(self):
-        """Get model information
+        """Get model information.
 
         This function gives complete description of the model.
+        The returned ibject contais the following keys:
+
+        * metadata (dict): Model metadata (see :func:`~model.Model.metadata`).
+        * model (dict): Context information of the learnt model.
+            * class (str): Type of the underlying model object.
+            * cls_type (str): Classifier type. It could be the same as
+              'class'. However, for :class:`sklearn.pipeline.Pipeline`
+              it will output the class of the classifier inside it.
+            * cls_name (str): Classifier name.
+            * is_explainable (bool):`True` if the model class allows SHAP
+              explanations to be computed.
+            * preprocessing_script (bool): `True` if a preprocessing
+              function was defined in the model's metadata.
+            * class_names (list or None): Class names if defined.
 
         Returns:
-            dict: Information about the model. It contais the following keys:
-                metadata (dict): Model metadata (see
-                    :func:`~model.Model.metadata`)
-                model (dict): Context information of the learnt model.
-                    class (str): Type of the underlying model object.
-                    cls_type (str): Classifier type. It could be the same as
-                        'class'. However, for :class:`sklearn.pipeline.Pipeline`
-                        it will output the class of the classifier inside it.
-                    cls_name (str): Classifier name.
-                    is_explainable (bool):`True` if the model class allows SHAP
-                        explanations to be computed.
-                    preprocessing_script (bool): `True` if a preprocessing
-                        function was defined in the model's metadata.
-                    class_names (list or None): Class names if defined.
+            dict: Information about the model.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -159,12 +162,10 @@ class Model:
 
         Args:
             input (dict): The expected object must contain one key per feature.
-            Example:
-            {'feature1': 5, 'feature2': 'A', 'feature3': 10}
+            Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
-            dict: Processed data if a preprocessing function was definded in the
-                model's metadata. The format must be the same as the input.
+            dict: Processed data if a preprocessing function was definded in the model's metadata. The format must be the same as the input.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -175,17 +176,17 @@ class Model:
     def predict(self, features):
         """Make a prediciton
 
-        Prediction function that returns the predicted class.
+        Prediction function that returns the predicted class. The returned value
+        is an integer when the class names are not expecified in the model's
+        metadata.
 
         Args:
             features (dict): Record to be used as input data to make
                 predictions. The expected object must contain one key per
-                feature. Example:
-                {'feature1': 5, 'feature2': 'A', 'feature3': 10}
+                feature. Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
-            int or str: Predicted class. The returned value is an integer when
-                the class names are not expecified in the model's metadata.
+            int or str: Predicted class.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -202,7 +203,8 @@ class Model:
         """Make a prediciton
 
         Prediction function that returns the probability of the predicted
-        classes.
+        classes. The returned object contais one value per class. The keys of
+        the dictionary are the classes of the model.
 
         Args:
             features (dict): Record to be used as input data to make
@@ -211,9 +213,7 @@ class Model:
                 {'feature1': 5, 'feature2': 'A', 'feature3': 10}
 
         Returns:
-            dict: Predicted class probabilities. The returned object
-                contais one value per class. The keys of the dictionary are the
-                classes of the model.
+            dict: Predicted class probabilities.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -231,11 +231,13 @@ class Model:
     def features(self):
         """Get the features of the model
 
+        The returned list contains records. Each record contais (at least)
+        the `name` and `type` of the variable. If the model supports
+        feature importances calculation (if the clasifier has
+        `feature_importances_` atribute), they will also be present.
+
         Returns:
-            list[dict]: Model features. Each record contais (at least)
-                the `name` and `type` of the variable. If the model supports
-                feature importances calculation (if the clasifier has
-                `feature_importances_` atribute), they will also be present.
+            list[dict]: Model features.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -244,7 +246,7 @@ class Model:
 
     @_check_if_model_is_ready
     def validate(self, input):
-        """Validate data
+        """Validate data.
 
         This function is used to validate data coming from a request. This
         method uses the information in the metadata to validate: features names,
@@ -301,9 +303,10 @@ class Model:
 
     @_check_if_model_is_ready
     def explain(self, features):
-        """Explain the prediction of a model
+        """Explain the prediction of a model.
 
         Explanation function that returns the SHAP value for each feture.
+        The returned object contais one value per feature of the model.
 
         Args:
             features (dict): Record to be used as input data to explain the
@@ -312,8 +315,7 @@ class Model:
                 {'feature1': 5, 'feature2': 'A', 'feature3': 10}
 
         Returns:
-            dict: Explanations. The returned object contais one value per
-                feature of the model.
+            dict: Explanations.
 
         Raises:
             RuntimeError: If the model classifier doesn't support SHAP

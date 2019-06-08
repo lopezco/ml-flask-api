@@ -1,12 +1,17 @@
-# Python-Flask Docker template for Machine Learning model deployment including SHAP explanations
+## Python-Flask Docker template for Machine Learning model deployment including SHAP explanations
+
 A simple example of a Python web service for real time machine learning model deployment.
 It is based on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
 
-## Requirements  
+## Installation
+
+### Requirements  
+
 * [docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * [docker-compose](https://docs.docker.com/compose/install/) (Recommended)
 
-## Before using
+### Before using
+
 Make sure that you have a model in the main directory.
 You can launch the example using the following line in order to create a quick classification model.
 ```bash
@@ -17,7 +22,24 @@ or
 $ python example/build_rf_model.py
 ```
 
-## Run on docker
+### Configuration
+
+* ```variables.env```: Controls API parameters via environment variables
+* ```requirements.txt```: Controls Python packages installed inside the container
+* ```model.joblib```: Model saved inside a dictionary with this format
+
+    ```javascript
+    {
+        "model": trained_model,
+        "metadata": {"features": [{"name": "feature1", "type": "numeric"},
+                                  {"name": "feature2", "type": "numeric", "default": -1},
+                                  {"name": "feature3", "type": "numeric"}]}
+    }
+    ```
+
+## Run the service
+
+### On Docker
 Build the image (this has to be done every time the code or the model change)
 ```bash
 $ docker-compose build
@@ -27,7 +49,8 @@ Create and run the container
 $ docker-compose build up
 ```
 
-## Run on local Python environment
+### On local Python environment
+
 Create the environment
 ```bash
 $ conda create -n flask_ml_template python=3
@@ -44,22 +67,32 @@ $ python service.py
 ```
 
 ## Usage of the API  
+
 This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling
 the example model.
 
-* Health (`/health`)
+### Health
+
+Endpoint: `/health`
+
 ```bash
 $ curl -X GET http://localhost:5000/health
 up
 ```
 
-* Is model ready? (`/ready`)
+### Is model ready?
+
+Endpoint: `/ready`
+
 ```bash
 $ curl -X GET http://localhost:5000/ready
 ready
 ```
 
-* Get information about the model (`/info`)
+### Get information about the model
+
+Endpoint: `/info`
+
 ```bash
 $ curl -X GET http://localhost:5000/info
 {
@@ -95,7 +128,10 @@ $ curl -X GET http://localhost:5000/info
 }
 ```
 
-* Prediction (`/predict`)
+### Prediction
+
+Endpoint: `/predict`
+
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
 {
@@ -103,7 +139,10 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 }
 ```
 
-* Predict probabilities (`/predict?proba=1` or `/predict_proba`)
+### Predict probabilities
+
+Endpoint: `/predict?proba=1` or `/predict_proba`
+
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
 {
@@ -117,7 +156,9 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 ```
 
 
-* Get features of the Model with features importances (`/features`)
+### Get features of the Model with features importances
+
+Endpoint: `/features`
 ```bash
 $ curl -X GET "http://localhost:5000/features"
 [
@@ -142,7 +183,10 @@ $ curl -X GET "http://localhost:5000/features"
 ]
 ```
 
-* Get SHAP explanations (`/predict?proba=1&explain=1` or `/explain`)
+### Get SHAP explanations
+
+Endpoint: `/predict?proba=1&explain=1` or `/explain`
+
 ```bash
 $curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1&explain=1"
 {
@@ -155,18 +199,5 @@ $curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appli
     "0": 0.7,
     "1": 0.3
   }
-}
-```
-
-## Files that can be configured
-* ```variables.env```: Controls API parameters via environment variables
-* ```requirements.txt```: Controls Python packages installed inside the container
-* ```model.joblib```: Model saved inside a dictionary with this format
-```json
-{
-    "model": trained_model,
-    "metadata": {"features": [{"name": "feature1", "type": "numeric"},
-                              {"name": "feature2", "type": "numeric", "default": -1},
-                              {"name": "feature3", "type": "numeric"}]}
 }
 ```
