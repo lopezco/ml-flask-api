@@ -25,7 +25,7 @@ if not os.path.exists(model_path):
 else:
     model = Model(model_path)
 
-app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT'))
+app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT')))
 app.logger.info('Loading model...')
 model.load_model()
 
