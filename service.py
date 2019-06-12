@@ -25,7 +25,7 @@ if not os.path.exists(model_path):
 else:
     model = Model(model_path)
 
-app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT')))
+app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT', 'local')))
 app.logger.info('Loading model...')
 model.load_model()
 
@@ -114,5 +114,5 @@ def readiness_check():
 if __name__ == '__main__':
     app.run(
         debug=DEBUG,
-        host=os.environ['HOST'],
-        port=os.environ['PORT'])
+        host=os.environ.get('HOST', 'localhost'),
+        port=os.environ.get('PORT', '5000'))
