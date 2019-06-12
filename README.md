@@ -162,12 +162,10 @@ Endpoint: `/predict?proba=1` or `/predict_proba`
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
 {
-  "prediction": [
-    [
-      0.6606847344865265,
-      0.3393152655134735
-    ]
-  ]
+  "prediction": {
+    "0": 0.8,
+    "1": 0.2
+  }
 }
 ```
 

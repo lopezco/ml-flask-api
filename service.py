@@ -42,10 +42,10 @@ def predict():
     output_explanation = int(request.args.get('explain', 0))
     # Predict
     before_time = time()
-    try:
-        prediction = model.predict_proba(input) if output_proba else model.predict(input)
-    except Exception as err:
-        return Response(str(err), status=500)
+    #try:
+    prediction = model.predict_proba(input) if output_proba else model.predict(input)
+    #except Exception as err:
+    #    return Response(str(err), status=500)
     result = {'prediction': prediction}
     # Eplain
     if output_explanation:
