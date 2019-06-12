@@ -40,6 +40,9 @@ $ python example/build_rf_model.py
 ## Run the service
 
 ### On Docker
+
+#### Development
+
 Build the image (this has to be done every time the code or the model change)
 ```bash
 $ docker-compose build
@@ -47,6 +50,19 @@ $ docker-compose build
 Create and run the container
 ```bash
 $ docker-compose build up
+```
+
+#### Production
+
+Using uWSGI and nginx for production.
+
+Build the image (this has to be done every time the code or the model change)
+```bash
+$ docker-compose -f docker-compose-production.yml build
+```
+Create and run the container
+```bash
+$ docker-compose -f docker-compose-production.yml up
 ```
 
 ### On local Python environment

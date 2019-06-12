@@ -18,13 +18,14 @@ base_dir = os.getcwd()
 
 if os.path.basename(base_dir) == 'docs':
     base_dir = os.path.dirname(base_dir)
-    
+
 model_path = os.path.join(base_dir, os.environ.get('MODEL_NAME', 'model.joblib'))
 if not os.path.exists(model_path):
     raise RuntimeError("Model {} not found".format(model_path))
 else:
     model = Model(model_path)
 
+app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT'))
 app.logger.info('Loading model...')
 model.load_model()
 
@@ -113,5 +114,5 @@ def readiness_check():
 if __name__ == '__main__':
     app.run(
         debug=DEBUG,
-        host=os.environ.get('HOST', 'localhost'),
-        port=os.environ.get('PORT', '5000'))
+        host=os.environ['HOST'],
+        port=os.environ['PORT'])

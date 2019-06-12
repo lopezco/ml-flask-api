@@ -1,8 +1,8 @@
-FROM python:3
+FROM tiangolo/uwsgi-nginx-flask:python3.6
 
-ENV ENVIRONMENT local
+ENV ENVIRONMENT production
 
-WORKDIR /usr/src/app
+WORKDIR /app/
 
 # Copy and install service requirements
 COPY ./requirements-service.txt .
@@ -14,6 +14,3 @@ RUN pip install -r ./requirements.txt
 
 # Copy code and model
 COPY . .
-
-ENTRYPOINT ["python"]
-CMD [ "./service.py" ]

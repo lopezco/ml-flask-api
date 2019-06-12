@@ -5,7 +5,7 @@ services:
     build: .
     image: flask-ml:${VERSION}
     env_file:
-      - variables.env
+      - variables-production.env
     restart: always
     ports:
       - "${PORT_EXTERNAL}:${PORT}"
