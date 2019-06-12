@@ -138,8 +138,7 @@ $ curl -X GET http://localhost:5000/info
     "class": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
     "cls_name": "RandomForestClassifier",
     "cls_type": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
-    "is_explainable": false,
-    "preprocessing_script": false
+    "is_explainable": false
   }
 }
 ```
@@ -149,9 +148,9 @@ $ curl -X GET http://localhost:5000/info
 Endpoint: `/predict`
 
 ```bash
-$ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
+$ curl -d '[{"feature1": 1, "feature2": 1, "feature3": 2}, {"feature1": 1, "feature2": 1, "feature3": 2}]' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
 {
-  "prediction": 0
+  "prediction": [0, 0]
 }
 ```
 
@@ -162,10 +161,10 @@ Endpoint: `/predict?proba=1` or `/predict_proba`
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
 {
-  "prediction": {
+  "prediction": [{
     "0": 0.8,
     "1": 0.2
-  }
+  }]
 }
 ```
 
@@ -209,9 +208,9 @@ $curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appli
     "feature2": 0.03333333383003871,
     "feature3": -0.1666666691501935
   },
-  "prediction": {
+  "prediction": [{
     "0": 0.7,
     "1": 0.3
-  }
+  }]
 }
 ```

@@ -4,6 +4,7 @@ import sys
 from threading import Thread
 from copy import deepcopy
 from functools import wraps
+import pandas as pd
 
 
 try:
@@ -43,14 +44,13 @@ class Model:
         self._is_ready = False
         self._model = None
         self._metadata = None
-        self._preprocessing = None
         # Explainability
         self._shap_models = ['Booster', 'Booster']
         for m in ('RandomForest', 'XGB', 'CatBoost', 'LGBM', 'DecisionTree'):
             self._shap_models.extend([m + 'Classifier', m + 'Regressor'])
 
     # Private
-    def _load_model(self):
+    def _load(self):
         """Model loading function.
 
         Once it finishes, the instance `_is_ready` is set to `True`.
@@ -63,18 +63,14 @@ class Model:
                     the `name` and `type` of the variable.
                     Default (`default`) value can also be defined.
                 class_names (list[str], optional): List of class names in order.
-            preprocessing (:func:`preprocessing`, optional): Function to be
-                applied to the data before performing inference (prediction).
         """
         # Load serialized model (dict expected)
         loaded = joblib.load(self._file_name)
         self._model = loaded['model']
         self._metadata = loaded['metadata']
-        self._class_names = loaded['metadata'].get('class_names', None)
-        self._preprocessing = loaded.get('preprocessing', None)
         self._is_ready = True
         # Hydrate class
-        cls = self.get_classifier()
+        cls = self._get_classifier()
         # SHAP
         is_shap_model = type(cls).__name__ in self._shap_models
         self._is_explainable = SHAP_AVAILABLE and is_shap_model
@@ -84,168 +80,36 @@ class Model:
             for imp, feat in zip(importance, loaded['metadata']['features']):
                 feat['importance'] = imp
 
-    # Public
-    def load_model(self):
-        """Launch model loading in a separated thread"""
-        Thread(target=self._load_model).start()
-
-    def is_ready(self):
-        """Check if model is already loaded.
-
-        Returns:
-            bool: is the model already loaded and ready for predictions?
-        """
-        return self._is_ready
-
-    @property
     @_check_if_model_is_ready
-    def metadata(self):
-        """Get metadata of the model_name.
+    def _get_classifier(self):
+        """Returns the classifier of this model.
+
+        If the underlying model is a :class:`sklearn.pipeline.Pipeline` this
+        function returns the classifier inside it, else it returns directly the
+        underlying model.
 
         Returns:
-            dict: Metadata of the model containing information about the features and classes (optional)
+            object: Classifier
 
         Raises:
             RuntimeError: If the model is not ready.
         """
-        return self._metadata
-
-    @property
-    @_check_if_model_is_ready
-    def info(self):
-        """Get model information.
-
-        This function gives complete description of the model.
-        The returned ibject contais the following keys:
-
-        * metadata (dict): Model metadata (see :func:`~model.Model.metadata`).
-        * model (dict): Context information of the learnt model.
-            * class (str): Type of the underlying model object.
-            * cls_type (str): Classifier type. It could be the same as
-              'class'. However, for :class:`sklearn.pipeline.Pipeline`
-              it will output the class of the classifier inside it.
-            * cls_name (str): Classifier name.
-            * is_explainable (bool):`True` if the model class allows SHAP
-              explanations to be computed.
-            * preprocessing_script (bool): `True` if a preprocessing
-              function was defined in the model's metadata.
-            * class_names (list or None): Class names if defined.
-
-        Returns:
-            dict: Information about the model.
-
-        Raises:
-            RuntimeError: If the model is not ready.
-        """
-        result = {}
-        # Metadata
-        result['metadata'] = deepcopy(self._metadata)
-        if result['metadata'].get('preprocessing') is not None:
-            del result['metadata']['preprocessing']
-        # Info from model
-        classifier_type = type(self.get_classifier())
-        result['model'] = {
-            'class': str(type(self._model)),
-            'cls_type': str(classifier_type),
-            'cls_name': classifier_type.__name__,
-            'is_explainable': self._is_explainable,
-            'preprocessing_script': self._preprocessing is not None,
-            'class_names': self._class_names
-        }
-        return result
-
-    @_check_if_model_is_ready
-    def preprocess(self, input):
-        """Preprocess data
-
-        This function is used before prediction or interpretation.
-
-        Args:
-            input (dict): The expected object must contain one key per feature.
-            Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
-
-        Returns:
-            dict: Processed data if a preprocessing function was definded in the model's metadata. The format must be the same as the input.
-
-        Raises:
-            RuntimeError: If the model is not ready.
-        """
-        return input if self._preprocessing is None else self._preprocessing(input)
-
-    @_check_if_model_is_ready
-    def predict(self, features):
-        """Make a prediciton
-
-        Prediction function that returns the predicted class. The returned value
-        is an integer when the class names are not expecified in the model's
-        metadata.
-
-        Args:
-            features (dict): Record to be used as input data to make
-                predictions. The expected object must contain one key per
-                feature. Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
-
-        Returns:
-            int or str: Predicted class.
-
-        Raises:
-            RuntimeError: If the model is not ready.
-        """
-        features = self.preprocess(features)
-        input = np.asarray(list(features.values())).reshape(1, -1)
-        result = int(self._model.predict(input)[0])
-        if self._class_names is not None:
-            result =  self._class_names[result]
-        return result
-
-    @_check_if_model_is_ready
-    def predict_proba(self, features):
-        """Make a prediciton
-
-        Prediction function that returns the probability of the predicted
-        classes. The returned object contais one value per class. The keys of
-        the dictionary are the classes of the model.
-
-        Args:
-            features (dict): Record to be used as input data to make
-                predictions. The expected object must contain one key per
-                feature. Example:
-                {'feature1': 5, 'feature2': 'A', 'feature3': 10}
-
-        Returns:
-            dict: Predicted class probabilities.
-
-        Raises:
-            RuntimeError: If the model is not ready.
-        """
-        input = np.asarray(list(features.values())).reshape(1, -1)
-        input = self.preprocess(input)
-        prediction = self._model.predict_proba(input)[0].tolist()
-        if self._class_names is None:
-            result = {c: v for c, v in enumerate(prediction)}
+        model_name = type(self._model).__name__
+        if model_name == 'Pipeline':
+            return self._model.steps[-1][1]
         else:
-            result = {c: v for c, v in zip(self._class_names, prediction)}
-        return result
+            return self._model
 
     @_check_if_model_is_ready
-    def features(self):
-        """Get the features of the model
-
-        The returned list contains records. Each record contais (at least)
-        the `name` and `type` of the variable. If the model supports
-        feature importances calculation (if the clasifier has
-        `feature_importances_` atribute), they will also be present.
-
-        Returns:
-            list[dict]: Model features.
-
-        Raises:
-            RuntimeError: If the model is not ready.
-        """
-        return deepcopy(self.metadata.get('features', []))
+    def _get_class_names(self):
+        return self._get_classifier().classes_.astype(str)
 
     @_check_if_model_is_ready
-    def validate(self, input):
+    def _feature_names(self):
+        return [variable['name'] for variable in self.features()]
+
+    @_check_if_model_is_ready
+    def _validate(self, input):
         """Validate data.
 
         This function is used to validate data coming from a request. This
@@ -268,38 +132,183 @@ class Model:
         if self.metadata.get('features') is None:
             raise AttributeError("Missing key 'features' in model's metadata")
 
-        output = {}
+        _, input = self.is_listlike(input)
+        df = pd.DataFrame(input, index=list(range(len(input))))
+
         for feature in self.metadata['features']:
             name, var_type, default = feature['name'], feature['type'], feature.get('default', np.nan)
-            value = input.get(name)
-            if var_type == 'numeric':
-                output[name] =  float(value) if value is not None else default
-            elif var_type == 'string':
-                output[name] = value or default
+            if name not in df.columns:
+                df[name] = default
             else:
-                raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
+                if var_type == 'numeric':
+                    df[name] =  df[name].astype(float)
+                elif var_type == 'string':
+                    df[name] =  df[name].astype(str)
+                else:
+                    raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
             # TO DO: add validation logic
-        return output
+        return df
 
-    @_check_if_model_is_ready
-    def get_classifier(self):
-        """Returns the classifier of this model.
+    # Public (static)
+    @staticmethod
+    def is_listlike(data):
+        is_input_listlike = pd.api.types.is_list_like(data) and not isinstance(data, dict)
+        if not is_input_listlike:
+            data = [data]
+        return is_input_listlike, data
 
-        If the underlying model is a :class:`sklearn.pipeline.Pipeline` this
-        function returns the classifier inside it, else it returns directly the
-        underlying model.
+    # Public    
+    def load(self):
+        """Launch model loading in a separated thread"""
+        Thread(target=self._load).start()
+
+    def is_ready(self):
+        """Check if model is already loaded.
 
         Returns:
-            object: Classifier
+            bool: is the model already loaded and ready for predictions?
+        """
+        return self._is_ready
+
+    @property
+    @_check_if_model_is_ready
+    def metadata(self):
+        """Get metadata of the model_name.
+
+        Returns:
+            dict: Metadata of the model containing information about the features and classes (optional)
 
         Raises:
             RuntimeError: If the model is not ready.
         """
-        model_name = type(self._model).__name__
-        if model_name == 'Pipeline':
-            return self._model.steps[-1][1]
+        return self._metadata
+
+    @_check_if_model_is_ready
+    def features(self):
+        """Get the features of the model
+
+        The returned list contains records. Each record contais (at least)
+        the `name` and `type` of the variable. If the model supports
+        feature importances calculation (if the clasifier has
+        `feature_importances_` atribute), they will also be present.
+
+        Returns:
+            list[dict]: Model features.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+        """
+        return deepcopy(self.metadata['features'])
+
+    @property
+    @_check_if_model_is_ready
+    def info(self):
+        """Get model information.
+
+        This function gives complete description of the model.
+        The returned ibject contais the following keys:
+
+        * metadata (dict): Model metadata (see :func:`~model.Model.metadata`).
+        * model (dict): Context information of the learnt model.
+            * class (str): Type of the underlying model object.
+            * cls_type (str): Classifier type. It could be the same as
+              'class'. However, for :class:`sklearn.pipeline.Pipeline`
+              it will output the class of the classifier inside it.
+            * cls_name (str): Classifier name.
+            * is_explainable (bool):`True` if the model class allows SHAP
+              explanations to be computed.
+            * class_names (list or None): Class names if defined.
+
+        Returns:
+            dict: Information about the model.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+        """
+        result = {}
+        # Metadata
+        result['metadata'] = self._metadata
+        # Info from model
+        classifier_type = type(self._get_classifier())
+        result['model'] = {
+            'class': str(type(self._model)),
+            'cls_type': str(classifier_type),
+            'cls_name': classifier_type.__name__,
+            'is_explainable': self._is_explainable,
+            'class_names': self._get_class_names().tolist()
+        }
+        return result
+
+    @_check_if_model_is_ready
+    def preprocess(self, input):
+        """Preprocess data
+
+        This function is used before prediction or interpretation.
+
+        Args:
+            input (dict): The expected object must contain one key per feature.
+            Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
+
+        Returns:
+            dict: Processed data if a preprocessing function was definded in the model's metadata. The format must be the same as the input.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+        """
+        if hasattr(self._model, 'transform'):
+            return self._model.transform(input)
         else:
-            return self._model
+            return input
+
+    @_check_if_model_is_ready
+    def predict(self, features):
+        """Make a prediciton
+
+        Prediction function that returns the predicted class. The returned value
+        is an integer when the class names are not expecified in the model's
+        metadata.
+
+        Args:
+            features (dict): Record to be used as input data to make
+                predictions. The expected object must contain one key per
+                feature. Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
+
+        Returns:
+            int or str: Predicted class.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+        """
+        input = self._validate(features)
+        result = self._model.predict(input).astype(int).tolist()
+        result = self._get_class_names()[result].tolist()
+        return result
+
+    @_check_if_model_is_ready
+    def predict_proba(self, features):
+        """Make a prediciton
+
+        Prediction function that returns the probability of the predicted
+        classes. The returned object contais one value per class. The keys of
+        the dictionary are the classes of the model.
+
+        Args:
+            features (dict): Record to be used as input data to make
+                predictions. The expected object must contain one key per
+                feature. Example:
+                {'feature1': 5, 'feature2': 'A', 'feature3': 10}
+
+        Returns:
+            dict: Predicted class probabilities.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+        """
+        input = self._validate(features)
+        prediction = self._model.predict_proba(input).tolist()
+        colnames = self._get_class_names()
+        df = pd.DataFrame(prediction, columns=colnames)
+        return df.to_dict(orient='records')
 
     @_check_if_model_is_ready
     def explain(self, features):
@@ -324,13 +333,16 @@ class Model:
         if not self._is_explainable:
             raise RuntimeError('Model {} is not supported for explanations'.format(type(self._model).__name__))
 
-        input = np.asarray(list(features.values())).reshape(1, -1)
+        input = self._validate(features)
         # Apply pre-processing
         preprocessed = self.preprocess(input)
-        if hasattr(self._model, 'transform'):
-            preprocessed = self._model.transform(preprocessed)
-        explainer = shap.TreeExplainer(self.get_classifier())
-        shap_values = explainer.shap_values(preprocessed)[0][0].tolist()
-        features = [x['name'] for x in self.features()]
-        explanations = {f: v for f, v in zip(features, shap_values)}
-        return explanations
+        # Explain
+        explainer = shap.TreeExplainer(self._get_classifier())
+        colnames = self._feature_names()
+        shap_values = explainer.shap_values(preprocessed[colnames].values)
+        # the result is one set of explanations per target class
+        result = {}
+        for idx, c in enumerate(self._get_class_names()):
+             result[c] = pd.DataFrame(shap_values[idx],
+                                      columns=colnames).to_dict(orient='records')
+        return result

@@ -27,7 +27,7 @@ else:
 
 app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT', 'local')))
 app.logger.info('Loading model...')
-model.load_model()
+model.load()
 
 
 @app.route('/predict', methods=['POST'])
@@ -92,6 +92,17 @@ def info():
 def features():
     try:
         features = model.features()
+    except Exception as err:
+        return Response(str(err), status=500)
+
+    return jsonify(features)
+
+
+@app.route('/preprocess',  methods=['POST'])
+def preprocess():
+    input = json.loads(request.data or '{}')
+    try:
+        features = model.preprocess(input)
     except Exception as err:
         return Response(str(err), status=500)
 
