@@ -191,7 +191,7 @@ class Model:
         Raises:
             RuntimeError: If the model is not ready.
         """
-        input = self.preprocess(input)
+        features = self.preprocess(features)
         input = np.asarray(list(features.values())).reshape(1, -1)
         result = int(self._model.predict(input)[0])
         if self._class_names is not None:
