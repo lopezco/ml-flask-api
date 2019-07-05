@@ -33,10 +33,6 @@ model.load()
 @app.route('/predict', methods=['POST'])
 def predict():
     input = json.loads(request.data or '{}')
-    try:
-        input = model.validate(input)
-    except ValueError as err:
-        return Response(str(err), status=400)
     # Parameters
     output_proba = int(request.args.get('proba', 0))
     output_explanation = int(request.args.get('explain', 0))
