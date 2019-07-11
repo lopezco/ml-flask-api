@@ -49,7 +49,7 @@ $ docker-compose build
 ```
 Create and run the container
 ```bash
-$ docker-compose build up
+$ docker-compose up
 ```
 
 #### Production
