@@ -15,8 +15,8 @@ class NumpyEncoder(flask.json.JSONEncoder):
     primitives = (np.ndarray, np.integer, np.inexact)
 
     def default(self, obj):
-        if isinstance(obj, np.flexible) and isinstance(obj, np.void):
-            return None
+        if isinstance(obj, np.flexible):
+            return None if isinstance(obj, np.void) else obj.tolist()
         elif isinstance(obj, self.primitives):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
