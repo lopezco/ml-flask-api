@@ -157,7 +157,7 @@ class Model:
             data = [data]
         return is_input_listlike, data
 
-    # Public    
+    # Public
     def load(self):
         """Launch model loading in a separated thread"""
         Thread(target=self._load).start()
@@ -235,7 +235,7 @@ class Model:
             'cls_type': str(classifier_type),
             'cls_name': classifier_type.__name__,
             'is_explainable': self._is_explainable,
-            'class_names': self._get_class_names().tolist()
+            'class_names': self._get_class_names()
         }
         return result
 
@@ -280,8 +280,8 @@ class Model:
             RuntimeError: If the model is not ready.
         """
         input = self._validate(features)
-        result = self._model.predict(input).astype(int).tolist()
-        result = self._get_class_names()[result].tolist()
+        result = self._model.predict(input).astype(int)
+        result = self._get_class_names()[result]
         return result
 
     @_check_if_model_is_ready
@@ -305,7 +305,7 @@ class Model:
             RuntimeError: If the model is not ready.
         """
         input = self._validate(features)
-        prediction = self._model.predict_proba(input).tolist()
+        prediction = self._model.predict_proba(input)
         colnames = self._get_class_names()
         df = pd.DataFrame(prediction, columns=colnames)
         return df.to_dict(orient='records')

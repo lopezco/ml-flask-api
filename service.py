@@ -4,75 +4,91 @@ Flask application to serve Machine Learning models
 """
 
 import os
-from flask import Flask, Response, jsonify, request, redirect, url_for
+import flask
 from model import Model
 from time import time
 import json
+import numpy as np
 
-app = Flask(__name__)
 
+class NumpyEncoder(flask.json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+# Create Flask Application
+app = flask.Flask(__name__)
+
+# Customize Flask Application
+app.json_encoder = NumpyEncoder
+
+# Read env variables
 DEBUG = os.environ.get('DEBUG', True)
+MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'local')
 
-# Load model
+# Create Model instance
 base_dir = os.getcwd()
 
 if os.path.basename(base_dir) == 'docs':
     base_dir = os.path.dirname(base_dir)
 
-model_path = os.path.join(base_dir, os.environ.get('MODEL_NAME', 'model.joblib'))
+model_path = os.path.join(base_dir, MODEL_NAME)
 if not os.path.exists(model_path):
     raise RuntimeError("Model {} not found".format(model_path))
 else:
     model = Model(model_path)
 
-app.logger.info('ENVIRONMENT: {}'.format(os.environ.get('ENVIRONMENT', 'local')))
+# laod saved model
+app.logger.info('ENVIRONMENT: {}'.format(ENVIRONMENT))
 app.logger.info('Loading model...')
 model.load()
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    input = json.loads(request.data or '{}')
+    input = json.loads(flask.request.data or '{}')
     # Parameters
-    output_proba = int(request.args.get('proba', 0))
-    output_explanation = int(request.args.get('explain', 0))
+    output_proba = int(flask.request.args.get('proba', 0))
+    output_explanation = int(flask.request.args.get('explain', 0))
     # Predict
     before_time = time()
     try:
         prediction = model.predict_proba(input) if output_proba else model.predict(input)
     except Exception as err:
-        return Response(str(err), status=500)
+        return flask.Response(str(err), status=500)
     result = {'prediction': prediction}
     # Eplain
     if output_explanation:
         try:
             explanation = model.explain(input)
         except Exception as err:
-            return Response(str(err), status=500)
+            return flask.Response(str(err), status=500)
         else:
             result['explanation'] = explanation
     after_time = time()
     # log
     to_be_logged = {
-        'input': request.data,
-        'params': request.args,
-        'request_id': request.headers.get('X-Correlation-ID'),
+        'input': flask.request.data,
+        'params': flask.request.args,
+        'request_id': flask.request.headers.get('X-Correlation-ID'),
         'result': result,
         'model': model.metadata,
         'elapsed_time': after_time - before_time
     }
     app.logger.info(to_be_logged)
-    return jsonify(result)
+    return flask.jsonify(result)
 
 
 @app.route('/predict_proba', methods=['POST'])
 def predict_proba():
-    return redirect(url_for('predict', proba=1))
+    return flask.redirect(flask.url_for('predict', proba=1))
 
 
 @app.route('/explain', methods=['POST'])
 def explain():
-    return redirect(url_for('predict', proba=1, explain=1))
+    return flask.redirect(flask.url_for('predict', proba=1, explain=1))
 
 
 @app.route('/info',  methods=['GET'])
@@ -80,8 +96,8 @@ def info():
     try:
         data = model.info
     except Exception as err:
-        return Response(str(err), status=500)
-    return jsonify(data)
+        return flask.Response(str(err), status=500)
+    return flask.jsonify(data)
 
 
 @app.route('/features',  methods=['GET'])
@@ -89,33 +105,33 @@ def features():
     try:
         features = model.features()
     except Exception as err:
-        return Response(str(err), status=500)
+        return flask.Response(str(err), status=500)
 
-    return jsonify(features)
+    return flask.jsonify(features)
 
 
 @app.route('/preprocess',  methods=['POST'])
 def preprocess():
-    input = json.loads(request.data or '{}')
+    input = json.loads(flask.request.data or '{}')
     try:
         features = model.preprocess(input)
     except Exception as err:
-        return Response(str(err), status=500)
+        return flask.Response(str(err), status=500)
 
-    return jsonify(features)
+    return flask.jsonify(features)
 
 
 @app.route('/health')
 def health_check():
-    return Response("up", status=200)
+    return flask.Response("up", status=200)
 
 
 @app.route('/ready')
 def readiness_check():
     if model.is_ready():
-        return Response("ready", status=200)
+        return flask.Response("ready", status=200)
     else:
-        return Response("not ready", status=503)
+        return flask.Response("not ready", status=503)
 
 
 if __name__ == '__main__':
