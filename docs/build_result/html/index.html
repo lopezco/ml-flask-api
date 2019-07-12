@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to ML Model Deployment’s documentation! &mdash; ML Model Deployment 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> ML Model Deployment
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to ML Model Deployment’s documentation!</a><ul>
+<li><a class="reference internal" href="#python-flask-docker-template-for-machine-learning-model-deployment-including-shap-explanations">Python-Flask Docker template for Machine Learning model deployment including SHAP explanations</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#before-using">Before using</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#run-the-service">Run the service</a><ul>
+<li><a class="reference internal" href="#on-docker">On Docker</a><ul>
+<li><a class="reference internal" href="#development">Development</a></li>
+<li><a class="reference internal" href="#production">Production</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#on-local-python-environment">On local Python environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage-of-the-api">Usage of the API</a><ul>
+<li><a class="reference internal" href="#health">Health</a></li>
+<li><a class="reference internal" href="#is-model-ready">Is model ready?</a></li>
+<li><a class="reference internal" href="#get-information-about-the-model">Get information about the model</a></li>
+<li><a class="reference internal" href="#prediction">Prediction</a></li>
+<li><a class="reference internal" href="#predict-probabilities">Predict probabilities</a></li>
+<li><a class="reference internal" href="#get-features-of-the-model-with-features-importances">Get features of the Model with features importances</a></li>
+<li><a class="reference internal" href="#get-shap-explanations">Get SHAP explanations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#flask-application">Flask Application</a><ul>
+<li><a class="reference internal" href="#module-model">Model Class</a></li>
+<li><a class="reference internal" href="#module-service">Service</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">ML Model Deployment</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to ML Model Deployment’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-ml-model-deployment-s-documentation">
+<h1>Welcome to ML Model Deployment’s documentation!<a class="headerlink" href="#welcome-to-ml-model-deployment-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="python-flask-docker-template-for-machine-learning-model-deployment-including-shap-explanations">
+<h2>Python-Flask Docker template for Machine Learning model deployment including SHAP explanations<a class="headerlink" href="#python-flask-docker-template-for-machine-learning-model-deployment-including-shap-explanations" title="Permalink to this headline">¶</a></h2>
+<p>A simple example of a Python web service for real time machine learning model deployment.
+It is based on <a class="reference external" href="https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce">this post</a></p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">docker</a></p></li>
+<li><p><a class="reference external" href="https://docs.docker.com/compose/install/">docker-compose</a> (Recommended)</p></li>
+</ul>
+</div>
+<div class="section" id="before-using">
+<h3>Before using<a class="headerlink" href="#before-using" title="Permalink to this headline">¶</a></h3>
+<p>Make sure that you have a model in the main directory.
+You can launch the example using the following line in order to create a quick classification model.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python example/build_linear_model.py
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python example/build_rf_model.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">variables.env</span></code>: Controls API parameters via environment variables</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>: Controls Python packages installed inside the container</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.joblib</span></code>: Model saved inside a dictionary with this format</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="nx">trained_model</span><span class="p">,</span>
+    <span class="s2">&quot;metadata&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;features&quot;</span><span class="o">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">},</span>
+                              <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature2&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+                              <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature3&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">}]}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="run-the-service">
+<h2>Run the service<a class="headerlink" href="#run-the-service" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="on-docker">
+<h3>On Docker<a class="headerlink" href="#on-docker" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="development">
+<h4>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h4>
+<p>Build the image (this has to be done every time the code or the model change)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose build
+</pre></div>
+</div>
+<p>Create and run the container</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose up
+</pre></div>
+</div>
+</div>
+<div class="section" id="production">
+<h4>Production<a class="headerlink" href="#production" title="Permalink to this headline">¶</a></h4>
+<p>Using uWSGI and nginx for production.</p>
+<p>Build the image (this has to be done every time the code or the model change)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose -f docker-compose-production.yml build
+</pre></div>
+</div>
+<p>Create and run the container</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose -f docker-compose-production.yml up
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="on-local-python-environment">
+<h3>On local Python environment<a class="headerlink" href="#on-local-python-environment" title="Permalink to this headline">¶</a></h3>
+<p>Create the environment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create -n flask_ml_template <span class="nv">python</span><span class="o">=</span><span class="m">3</span>
+$ conda activate flask_ml_template
+</pre></div>
+</div>
+<p>Install requirements</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install -r ./requirements-service.txt
+$ pip install -r ./requirements.txt
+</pre></div>
+</div>
+<p>Run the API service</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python service.py
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="usage-of-the-api">
+<h2>Usage of the API<a class="headerlink" href="#usage-of-the-api" title="Permalink to this headline">¶</a></h2>
+<p>This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling
+the example model.</p>
+<div class="section" id="health">
+<h3>Health<a class="headerlink" href="#health" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/health</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/health
+up
+</pre></div>
+</div>
+</div>
+<div class="section" id="is-model-ready">
+<h3>Is model ready?<a class="headerlink" href="#is-model-ready" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/ready</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/ready
+ready
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-information-about-the-model">
+<h3>Get information about the model<a class="headerlink" href="#get-information-about-the-model" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/info</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/info
+<span class="o">{</span>
+  <span class="s2">&quot;metadata&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;features&quot;</span>: <span class="o">[</span>
+      <span class="o">{</span>
+        <span class="s2">&quot;default&quot;</span>: -1,
+        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.2,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature1&quot;</span>,
+        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+      <span class="o">}</span>,
+      <span class="o">{</span>
+        <span class="s2">&quot;default&quot;</span>: -1,
+        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.1,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature2&quot;</span>,
+        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+      <span class="o">}</span>,
+      <span class="o">{</span>
+        <span class="s2">&quot;default&quot;</span>: -1,
+        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.3,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature3&quot;</span>,
+        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+      <span class="o">}</span>
+    <span class="o">]</span>
+  <span class="o">}</span>,
+  <span class="s2">&quot;model&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;class&quot;</span>: <span class="s2">&quot;&lt;class &#39;sklearn.ensemble.forest.RandomForestClassifier&#39;&gt;&quot;</span>,
+    <span class="s2">&quot;cls_name&quot;</span>: <span class="s2">&quot;RandomForestClassifier&quot;</span>,
+    <span class="s2">&quot;cls_type&quot;</span>: <span class="s2">&quot;&lt;class &#39;sklearn.ensemble.forest.RandomForestClassifier&#39;&gt;&quot;</span>,
+    <span class="s2">&quot;is_explainable&quot;</span>: <span class="nb">false</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="prediction">
+<h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -d <span class="s1">&#39;[{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}, {&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}]&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST http://localhost:5000/predict
+<span class="o">{</span>
+  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[</span><span class="m">0</span>, <span class="m">0</span><span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="predict-probabilities">
+<h3>Predict probabilities<a class="headerlink" href="#predict-probabilities" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict?proba=1</span></code> or <code class="docutils literal notranslate"><span class="pre">/predict_proba</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -d <span class="s1">&#39;{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST <span class="s2">&quot;http://localhost:5000/predict?proba=1&quot;</span>
+<span class="o">{</span>
+  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[{</span>
+    <span class="s2">&quot;0&quot;</span>: <span class="m">0</span>.8,
+    <span class="s2">&quot;1&quot;</span>: <span class="m">0</span>.2
+  <span class="o">}]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-features-of-the-model-with-features-importances">
+<h3>Get features of the Model with features importances<a class="headerlink" href="#get-features-of-the-model-with-features-importances" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/features</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET <span class="s2">&quot;http://localhost:5000/features&quot;</span>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">&quot;default&quot;</span>: -1,
+    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.2,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature1&quot;</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">&quot;default&quot;</span>: -1,
+    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.1,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature2&quot;</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">&quot;default&quot;</span>: -1,
+    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.3,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature3&quot;</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-shap-explanations">
+<h3>Get SHAP explanations<a class="headerlink" href="#get-shap-explanations" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict?proba=1&amp;explain=1</span></code> or <code class="docutils literal notranslate"><span class="pre">/explain</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$curl</span> -d <span class="s1">&#39;{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST <span class="s2">&quot;http://localhost:5000/predict?proba=1&amp;explain=1&quot;</span>
+<span class="o">{</span>
+  <span class="s2">&quot;explanation&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;feature1&quot;</span>: <span class="m">0</span>.10000000149011613,
+    <span class="s2">&quot;feature2&quot;</span>: <span class="m">0</span>.03333333383003871,
+    <span class="s2">&quot;feature3&quot;</span>: -0.1666666691501935
+  <span class="o">}</span>,
+  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[{</span>
+    <span class="s2">&quot;0&quot;</span>: <span class="m">0</span>.7,
+    <span class="s2">&quot;1&quot;</span>: <span class="m">0</span>.3
+  <span class="o">}]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="flask-application">
+<h1>Flask Application<a class="headerlink" href="#flask-application" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-model">
+<span id="model-class"></span><h2>Model Class<a class="headerlink" href="#module-model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="model.Model">
+<em class="property">class </em><code class="sig-prename descclassname">model.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Model Class that handles the loaded model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – File path of the serialized model.
+It must be a file that can be loaded using <code class="xref py py-mod docutils literal notranslate"><span class="pre">joblib</span></code></p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="model.Model.explain">
+<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explain the prediction of a model.</p>
+<p>Explanation function that returns the SHAP value for each feture.
+The returned object contais one value per feature of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to explain the
+model. The expected object must contain one key per
+feature. Example:
+{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Explanations.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model classifier doesn’t support SHAP
+    explanations or the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.features">
+<code class="sig-name descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the features of the model</p>
+<p>The returned list contains records. Each record contais (at least)
+the <cite>name</cite> and <cite>type</cite> of the variable. If the model supports
+feature importances calculation (if the clasifier has
+<cite>feature_importances_</cite> atribute), they will also be present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Model features.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>]</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#model.Model.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get model information.</p>
+<p>This function gives complete description of the model.
+The returned ibject contais the following keys:</p>
+<ul class="simple">
+<li><p>metadata (dict): Model metadata (see <a class="reference internal" href="#model.Model.metadata" title="model.Model.metadata"><code class="xref py py-func docutils literal notranslate"><span class="pre">metadata()</span></code></a>).</p></li>
+<li><dl class="simple">
+<dt>model (dict): Context information of the learnt model.</dt><dd><ul>
+<li><p>class (str): Type of the underlying model object.</p></li>
+<li><p>cls_type (str): Classifier type. It could be the same as
+‘class’. However, for <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code>
+it will output the class of the classifier inside it.</p></li>
+<li><p>cls_name (str): Classifier name.</p></li>
+<li><p>is_explainable (bool):<cite>True</cite> if the model class allows SHAP
+explanations to be computed.</p></li>
+<li><p>class_names (list or None): Class names if defined.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Information about the model.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.is_listlike">
+<em class="property">static </em><code class="sig-name descname">is_listlike</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.is_listlike"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.is_listlike" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="model.Model.is_ready">
+<code class="sig-name descname">is_ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.is_ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.is_ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if model is already loaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>is the model already loaded and ready for predictions?</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch model loading in a separated thread</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.metadata">
+<em class="property">property </em><code class="sig-name descname">metadata</code><a class="headerlink" href="#model.Model.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get metadata of the model_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Metadata of the model containing information about the features and classes (optional)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a prediciton</p>
+<p>Prediction function that returns the predicted class. The returned value
+is an integer when the class names are not expecified in the model’s
+metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to make
+predictions. The expected object must contain one key per
+feature. Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.predict_proba">
+<code class="sig-name descname">predict_proba</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a prediciton</p>
+<p>Prediction function that returns the probability of the predicted
+classes. The returned object contais one value per class. The keys of
+the dictionary are the classes of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to make
+predictions. The expected object must contain one key per
+feature. Example:
+{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted class probabilities.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="model.Model.preprocess">
+<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data</p>
+<p>This function is used before prediction or interpretation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The expected object must contain one key per feature.</p></li>
+<li><p><strong>Example</strong> – <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Processed data if a preprocessing function was definded in the model’s metadata. The format must be the same as the input.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-service">
+<span id="service"></span><h2>Service<a class="headerlink" href="#module-service" title="Permalink to this headline">¶</a></h2>
+<p>Flask application to serve Machine Learning models</p>
+<dl class="data">
+<dt id="service.ENVIRONMENT">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">ENVIRONMENT</code><em class="property"> = 'local'</em><a class="headerlink" href="#service.ENVIRONMENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="service.MODEL_NAME">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">MODEL_NAME</code><em class="property"> = 'model.joblib'</em><a class="headerlink" href="#service.MODEL_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="service.NumpyEncoder">
+<em class="property">class </em><code class="sig-prename descclassname">service.</code><code class="sig-name descname">NumpyEncoder</code><span class="sig-paren">(</span><em class="sig-param">*</em>, <em class="sig-param">skipkeys=False</em>, <em class="sig-param">ensure_ascii=True</em>, <em class="sig-param">check_circular=True</em>, <em class="sig-param">allow_nan=True</em>, <em class="sig-param">sort_keys=False</em>, <em class="sig-param">indent=None</em>, <em class="sig-param">separators=None</em>, <em class="sig-param">default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#NumpyEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.NumpyEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask.json.JSONEncoder</span></code></p>
+<dl class="method">
+<dt id="service.NumpyEncoder.default">
+<code class="sig-name descname">default</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#NumpyEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.NumpyEncoder.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement this method in a subclass such that it returns a
+serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation (to
+raise a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a>).</p>
+<p>For example, to support arbitrary iterators, you could implement
+default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="service.NumpyEncoder.primitives">
+<code class="sig-name descname">primitives</code><em class="property"> = (&lt;class 'numpy.ndarray'&gt;, &lt;class 'numpy.integer'&gt;, &lt;class 'numpy.inexact'&gt;)</em><a class="headerlink" href="#service.NumpyEncoder.primitives" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="service.explain">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">explain</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.explain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.features">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.health_check">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">health_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#health_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.health_check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.info">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.predict">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">predict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.predict_proba">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">predict_proba</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.preprocess">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="service.readiness_check">
+<code class="sig-prename descclassname">service.</code><code class="sig-name descname">readiness_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#readiness_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.readiness_check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, lopezco
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
