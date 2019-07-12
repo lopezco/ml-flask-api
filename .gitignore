@@ -65,9 +65,6 @@ instance/
 
 # Sphinx documentation
 docs/_build
-docs/build_result/doctrees
-!docs/build_result/html
-
 
 # PyBuilder
 target/
