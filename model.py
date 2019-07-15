@@ -132,11 +132,19 @@ class Model:
         if self.metadata.get('features') is None:
             raise AttributeError("Missing key 'features' in model's metadata")
 
+        # Ensure input is lislike shaped
         _, input = self.is_listlike(input)
-        df = pd.DataFrame(input, index=list(range(len(input))))
-
+        # Get feature names in order
+        feature_names = [f['name'] for f in self.metadata['features']]
+        # Create an index to handle multiple samples input
+        index = list(range(len(input)))
+        # Create DataFrame
+        df = pd.DataFrame(input, index=index, columns=feature_names)
+        # Convert features to expected types
         for feature in self.metadata['features']:
-            name, var_type, default = feature['name'], feature['type'], feature.get('default', np.nan)
+            name, var_type = feature['name'], feature['type']
+            default = feature.get('default', np.nan)
+            categories = feature.get('categories', None)
             if name not in df.columns:
                 df[name] = default
             else:
@@ -144,6 +152,9 @@ class Model:
                     df[name] =  df[name].astype(float)
                 elif var_type == 'string':
                     df[name] =  df[name].astype(str)
+                elif var_type == 'category':
+                    cat_dtype = 'category' if categories is None else pd.api.types.CategoricalDtype(categories=categories, ordered=True)
+                    df[name] =  df[name].astype(cat_dtype)
                 else:
                     raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
             # TO DO: add validation logic
