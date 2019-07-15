@@ -340,6 +340,7 @@ class Model:
         Raises:
             RuntimeError: If the model classifier doesn't support SHAP
                 explanations or the model is not ready.
+            ValueError: If the explainer outputs an unknown object
         """
         if not self._is_explainable:
             raise RuntimeError('Model {} is not supported for explanations'.format(type(self._model).__name__))
@@ -351,9 +352,28 @@ class Model:
         explainer = shap.TreeExplainer(self._get_classifier())
         colnames = self._feature_names()
         shap_values = explainer.shap_values(preprocessed[colnames].values)
-        # the result is one set of explanations per target class
-        result = {}
-        for idx, c in enumerate(self._get_class_names()):
-             result[c] = pd.DataFrame(shap_values[idx],
-                                      columns=colnames).to_dict(orient='records')
+
+        # Create an index to handle multiple samples input
+        index = preprocessed.index
+
+        if isinstance(shap_values, list):
+            # The result is one set of explanations per target class
+            result = {}
+            for i, c in enumerate(self._get_class_names()):
+                result[c] = (
+                    pd.DataFrame(shap_values[i], index=index, columns=colnames)
+                    .to_dict(orient='records'))
+        elif isinstance(shap_values, np.ndarray):
+            # The result is one ndarray set of explanations for one class
+            # Expected only for binary classification for some models.
+            # Ex: LightGBMClassifier
+            assert len(self._get_class_names()) == 2
+            result = {}
+            for i, c in enumerate(self._get_class_names()):
+                f = -1 if i == 0 else 1  # The second class is always 1
+                result[c] = (
+                    pd.DataFrame(shap_values * f, index=index, columns=colnames)
+                    .to_dict(orient='records'))
+        else:
+            raise ValueError('Unknown objet class for shap_values variable')
         return result
