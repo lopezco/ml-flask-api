@@ -7,8 +7,3 @@ joblib
 
 # Model interpretability
 shap
-
-# Documentation
-sphinx>=2.1.0
-sphinx_rtd_theme
-m2r
