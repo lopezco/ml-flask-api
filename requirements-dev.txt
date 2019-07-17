@@ -1,5 +1,5 @@
 # Version
-bumpversion
+bump2version
 
 # Documentation
 sphinx>=2.1.0
