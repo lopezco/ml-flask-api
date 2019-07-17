@@ -5,10 +5,21 @@ Flask application to serve Machine Learning models
 import os
 import flask
 import json
+import argparse
+import logging
 import numpy as np
 
 from time import time
 from model import Model
+
+
+# Version of this APP template
+__version__ = '1.0.0'
+# Read env variables
+DEBUG = os.environ.get('DEBUG', True)
+MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'local')
+SERVICE_START_TIMESTAMP = time()
 
 
 class NumpyEncoder(flask.json.JSONEncoder):
@@ -21,31 +32,37 @@ class NumpyEncoder(flask.json.JSONEncoder):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
+
+def build_response_from_dict(data, status=200):
+    return flask.Response(json.dumps(data, cls=NumpyEncoder), status=status)
+
+
+def create_model_instance():
+    global MODEL_NAME
+    # Get current directory
+    base_dir = os.getcwd()
+    # Fix for documentation compilation
+    if os.path.basename(base_dir) == 'docs':
+        base_dir = os.path.dirname(base_dir)
+    # Check if there is a model in the directory with the expected name
+    model_path = os.path.join(base_dir, MODEL_NAME)
+    if not os.path.exists(model_path):
+        raise RuntimeError("Model {} not found".format(model_path))
+    else:
+        # Model found! now create an instance
+        return Model(model_path)
+
+
 # Create Flask Application
 app = flask.Flask(__name__)
-
 # Customize Flask Application
+app.logger.setLevel(logging.DEBUG)
 app.json_encoder = NumpyEncoder
-
-# Read env variables
-DEBUG = os.environ.get('DEBUG', True)
-MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
-ENVIRONMENT = os.environ.get('ENVIRONMENT', 'local')
-
 # Create Model instance
-base_dir = os.getcwd()
-
-if os.path.basename(base_dir) == 'docs':
-    base_dir = os.path.dirname(base_dir)
-
-model_path = os.path.join(base_dir, MODEL_NAME)
-if not os.path.exists(model_path):
-    raise RuntimeError("Model {} not found".format(model_path))
-else:
-    model = Model(model_path)
-
+model = create_model_instance()
 # laod saved model
 app.logger.info('ENVIRONMENT: {}'.format(ENVIRONMENT))
+app.logger.info('Using template version: {}'.format(__version__))
 app.logger.info('Loading model...')
 model.load()
 
@@ -60,11 +77,11 @@ def predict():
     before_time = time()
     try:
         predict_function = 'predict_proba' if do_proba else 'predict'
-        prediction = getattr(model, pred_function)(input)
+        prediction = getattr(model, predict_function)(input)
     except Exception as err:
         return flask.Response(str(err), status=500)
     result = {'prediction': prediction}
-    # Eplain
+    # Explain
     if do_explain:
         try:
             explanation = model.explain(input)
@@ -83,7 +100,7 @@ def predict():
         'elapsed_time': after_time - before_time
     }
     app.logger.info(to_be_logged)
-    return flask.jsonify(result)
+    return build_response_from_dict(result)
 
 
 @app.route('/predict_proba', methods=['POST'])
@@ -99,10 +116,11 @@ def explain():
 @app.route('/info',  methods=['GET'])
 def info():
     try:
-        data = model.info
+        info = model.info
     except Exception as err:
         return flask.Response(str(err), status=500)
-    return flask.jsonify(data)
+    else:
+        return build_response_from_dict(info)
 
 
 @app.route('/features',  methods=['GET'])
@@ -111,19 +129,19 @@ def features():
         features = model.features()
     except Exception as err:
         return flask.Response(str(err), status=500)
-
-    return flask.jsonify(features)
+    else:
+        return build_response_from_dict(features)
 
 
 @app.route('/preprocess',  methods=['POST'])
 def preprocess():
     input = json.loads(flask.request.data or '{}')
     try:
-        features = model.preprocess(input)
+        data = model.preprocess(input)
     except Exception as err:
         return flask.Response(str(err), status=500)
-
-    return flask.jsonify(features)
+    else:
+        return build_response_from_dict(data)
 
 
 @app.route('/health')
@@ -137,6 +155,16 @@ def readiness_check():
         return flask.Response("ready", status=200)
     else:
         return flask.Response("not ready", status=503)
+
+
+@app.route('/service-info')
+def service_info():
+    info =  {
+        'version-template': __version__,
+        'running-since': SERVICE_START_TIMESTAMP,
+        'serving-model': MODEL_NAME,
+        'debug': DEBUG}
+    return build_response_from_dict(info)
 
 
 if __name__ == '__main__':

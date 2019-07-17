@@ -105,6 +105,20 @@ $ curl -X GET http://localhost:5000/ready
 ready
 ```
 
+### Service information
+
+Endpoint: `/service-info`
+
+```bash
+$ curl -X GET http://localhost:5000/service-info
+{
+  "debug": true,
+  "running-since": 1563355369.6482198,
+  "serving-model": "model.joblib",
+  "version-template": "1.0.0"
+}
+```
+
 ### Get information about the model
 
 Endpoint: `/info`
