@@ -11,6 +11,7 @@ import numpy as np
 
 from time import time
 from model import Model
+from functools import wraps
 
 
 # Version of this APP template
@@ -23,6 +24,7 @@ SERVICE_START_TIMESTAMP = time()
 
 
 class NumpyEncoder(flask.json.JSONEncoder):
+    """Encoder of numpy primitives into JSON strings"""
     primitives = (np.ndarray, np.integer, np.inexact)
 
     def default(self, obj):
@@ -33,8 +35,18 @@ class NumpyEncoder(flask.json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def build_response_from_dict(data, status=200):
-    return flask.Response(json.dumps(data, cls=NumpyEncoder), status=status)
+def returns_json(f):
+    """Wraps a function to transform the output into a JSON string with a
+    specific encoder"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        r = f(*args, **kwargs)
+        if isinstance(r, flask.Response):
+            return r
+        else:
+            return flask.Response(json.dumps(r, cls=NumpyEncoder), status=200,
+                                  mimetype='application/json; charset=utf-8')
+    return decorated_function
 
 
 def create_model_instance():
@@ -68,6 +80,7 @@ model.load()
 
 
 @app.route('/predict', methods=['POST'])
+@returns_json
 def predict():
     input = json.loads(flask.request.data or '{}')
     # Parameters
@@ -100,7 +113,7 @@ def predict():
         'elapsed_time': after_time - before_time
     }
     app.logger.info(to_be_logged)
-    return build_response_from_dict(result)
+    return result
 
 
 @app.route('/predict_proba', methods=['POST'])
@@ -114,26 +127,29 @@ def explain():
 
 
 @app.route('/info',  methods=['GET'])
+@returns_json
 def info():
     try:
         info = model.info
     except Exception as err:
         return flask.Response(str(err), status=500)
     else:
-        return build_response_from_dict(info)
+        return info
 
 
 @app.route('/features',  methods=['GET'])
+@returns_json
 def features():
     try:
         features = model.features()
     except Exception as err:
         return flask.Response(str(err), status=500)
     else:
-        return build_response_from_dict(features)
+        return features
 
 
 @app.route('/preprocess',  methods=['POST'])
+@returns_json
 def preprocess():
     input = json.loads(flask.request.data or '{}')
     try:
@@ -141,7 +157,7 @@ def preprocess():
     except Exception as err:
         return flask.Response(str(err), status=500)
     else:
-        return build_response_from_dict(data)
+        return data
 
 
 @app.route('/health')
@@ -158,13 +174,14 @@ def readiness_check():
 
 
 @app.route('/service-info')
+@returns_json
 def service_info():
     info =  {
         'version-template': __version__,
         'running-since': SERVICE_START_TIMESTAMP,
         'serving-model': MODEL_NAME,
         'debug': DEBUG}
-    return build_response_from_dict(info)
+    return info
 
 
 if __name__ == '__main__':
