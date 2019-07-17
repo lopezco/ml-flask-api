@@ -1,10 +1,12 @@
 import joblib
-import numpy as np
 import sys
+import numpy as np
+import pandas as pd
+
+from pandas.api.types import CategoricalDtype
 from threading import Thread
 from copy import deepcopy
 from functools import wraps
-import pandas as pd
 
 
 try:
@@ -118,8 +120,7 @@ class Model:
 
         Args:
             input (dict): The expected object must contain one key per feature.
-            Example:
-            {'feature1': 5, 'feature2': 'A', 'feature3': 10}
+            Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
             dict: Validated data with the same format as the input.
@@ -153,17 +154,22 @@ class Model:
                 elif var_type == 'string':
                     df[name] =  df[name].astype(str)
                 elif var_type == 'category':
-                    cat_dtype = 'category' if categories is None else pd.api.types.CategoricalDtype(categories=categories, ordered=True)
-                    df[name] =  df[name].astype(cat_dtype)
+                    if categories is not None:
+                        var_type = CategoricalDtype(categories=categories,
+                                                    ordered=True)
+                    df[name] =  df[name].astype(var_type)
                 else:
-                    raise ValueError('Unknown variable type in metadata: {}'.format(var_type))
+                    msg = 'Unknown variable type: {}'.format(var_type)
+                    raise ValueError(msg)
             # TO DO: add validation logic
         return df
 
     # Public (static)
     @staticmethod
     def is_listlike(data):
-        is_input_listlike = pd.api.types.is_list_like(data) and not isinstance(data, dict)
+        is_listlike = pd.api.types.is_list_like(data)
+        is_dict = isinstance(data, dict)
+        is_input_listlike = is_listlike and not is_dict
         if not is_input_listlike:
             data = [data]
         return is_input_listlike, data
@@ -187,7 +193,8 @@ class Model:
         """Get metadata of the model_name.
 
         Returns:
-            dict: Metadata of the model containing information about the features and classes (optional)
+            dict: Metadata of the model containing information about the
+                features and classes (optional)
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -261,7 +268,8 @@ class Model:
             Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
-            dict: Processed data if a preprocessing function was definded in the model's metadata. The format must be the same as the input.
+            dict: Processed data if a preprocessing function was definded in the
+                model's metadata. The format must be the same as the input.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -282,7 +290,7 @@ class Model:
         Args:
             features (dict): Record to be used as input data to make
                 predictions. The expected object must contain one key per
-                feature. Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
+                feature. Ex: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
             int or str: Predicted class.
@@ -343,37 +351,40 @@ class Model:
             ValueError: If the explainer outputs an unknown object
         """
         if not self._is_explainable:
-            raise RuntimeError('Model {} is not supported for explanations'.format(type(self._model).__name__))
+            model_name = type(self._model).__name_
+            msg = 'Model not supported for explanations: {}'.format(model_name)
+            raise RuntimeError(msg)
 
         input = self._validate(features)
         # Apply pre-processing
         preprocessed = self.preprocess(input)
-        # Explain
+        # Explainer
         explainer = shap.TreeExplainer(self._get_classifier())
         colnames = self._feature_names()
         shap_values = explainer.shap_values(preprocessed[colnames].values)
 
         # Create an index to handle multiple samples input
         index = preprocessed.index
-
+        class_names = self._get_class_names()
         if isinstance(shap_values, list):
             # The result is one set of explanations per target class
-            result = {}
-            for i, c in enumerate(self._get_class_names()):
-                result[c] = (
-                    pd.DataFrame(shap_values[i], index=index, columns=colnames)
-                    .to_dict(orient='records'))
-        elif isinstance(shap_values, np.ndarray):
+            process_shap_values = False
+        elif isinstance(shap_values, np.ndarray) and len(class_names) == 2:
             # The result is one ndarray set of explanations for one class
             # Expected only for binary classification for some models.
-            # Ex: LightGBMClassifier
-            assert len(self._get_class_names()) == 2
-            result = {}
-            for i, c in enumerate(self._get_class_names()):
-                f = -1 if i == 0 else 1  # The second class is always 1
-                result[c] = (
-                    pd.DataFrame(shap_values * f, index=index, columns=colnames)
-                    .to_dict(orient='records'))
+            # Ex: LGBMClassifier
+            process_shap_values = True
         else:
             raise ValueError('Unknown objet class for shap_values variable')
+
+        # Format output
+        result = {}
+        for i, c in enumerate(class_names):
+            if process_shap_values:
+                _values = shap_values * (-1 if i == 0 else 1)
+            else:
+                _values = shap_values[i]
+            result[c] = pd.DataFrame(_values,
+                                     index=index,
+                                     columns=colnames).to_dict(orient='records')
         return result

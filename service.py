@@ -2,13 +2,13 @@
 """
 Flask application to serve Machine Learning models
 """
-
 import os
 import flask
-from model import Model
-from time import time
 import json
 import numpy as np
+
+from time import time
+from model import Model
 
 
 class NumpyEncoder(flask.json.JSONEncoder):
@@ -54,17 +54,18 @@ model.load()
 def predict():
     input = json.loads(flask.request.data or '{}')
     # Parameters
-    output_proba = int(flask.request.args.get('proba', 0))
-    output_explanation = int(flask.request.args.get('explain', 0))
+    do_proba = int(flask.request.args.get('proba', 0))
+    do_explain = int(flask.request.args.get('explain', 0))
     # Predict
     before_time = time()
     try:
-        prediction = model.predict_proba(input) if output_proba else model.predict(input)
+        predict_function = 'predict_proba' if do_proba else 'predict'
+        prediction = getattr(model, pred_function)(input)
     except Exception as err:
         return flask.Response(str(err), status=500)
     result = {'prediction': prediction}
     # Eplain
-    if output_explanation:
+    if do_explain:
         try:
             explanation = model.explain(input)
         except Exception as err:
