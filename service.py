@@ -54,7 +54,7 @@ def create_model_instance():
     # Get current directory
     base_dir = os.getcwd()
     # Fix for documentation compilation
-    if os.path.basename(base_dir) == 'docs':
+    if os.path.basename(base_dir) == 'docsrc':
         base_dir = os.path.dirname(base_dir)
     # Check if there is a model in the directory with the expected name
     model_path = os.path.join(base_dir, MODEL_NAME)
