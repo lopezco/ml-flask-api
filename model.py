@@ -115,7 +115,7 @@ class Model:
 
     @_check_if_model_is_ready
     def _get_class_names(self):
-        return self._get_classifier().classes_.astype(str)
+        return np.array(self._get_classifier().classes_, str)
 
     @_check_if_model_is_ready
     def _feature_names(self):
@@ -224,7 +224,7 @@ class Model:
 
     @property
     @_check_if_model_is_ready
-    def is_miltilabel_classification(self):
+    def is_multilabel_classification(self):
         return self._task_type == Model.MULTILABEL_CLASSIFICATION
 
     @property
@@ -350,11 +350,7 @@ class Model:
             RuntimeError: If the model is not ready.
         """
         input = self._validate(features)
-        if self.is_classification:
-            result = self._model.predict(input).astype(int)
-            result = self._get_class_names()[result]
-        elif self.is_regression:
-            result = self._model.predict(input)
+        result = self._model.predict(input)
         return result
 
     @_check_if_model_is_ready
