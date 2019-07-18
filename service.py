@@ -82,10 +82,10 @@ model.load()
 @app.route('/predict', methods=['POST'])
 @returns_json
 def predict():
-    input = json.loads(flask.request.data or '{}')
     # Parameters
     do_proba = int(flask.request.args.get('proba', 0))
     do_explain = int(flask.request.args.get('explain', 0))
+    input = json.loads(flask.request.data or '{}')
     # Predict
     before_time = time()
     try:

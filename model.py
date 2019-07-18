@@ -7,6 +7,7 @@ from pandas.api.types import CategoricalDtype
 from threading import Thread
 from copy import deepcopy
 from functools import wraps
+from enum import Enum
 
 
 try:
@@ -36,6 +37,8 @@ class Model:
         file_name (str): File path of the serialized model.
             It must be a file that can be loaded using :mod:`joblib`
     """
+    REGRESSION, CLASSIFICATION = 0, 1
+    BINARY_CLASSIFICATION, MULTILABEL_CLASSIFICATION = 2, 3
 
     def __init__(self, file_name):
         def get_last_column(X):
@@ -46,6 +49,7 @@ class Model:
         self._is_ready = False
         self._model = None
         self._metadata = None
+        self._task_type = None
         # Explainability
         self._shap_models = ['Booster', 'Booster']
         for m in ('RandomForest', 'XGB', 'CatBoost', 'LGBM', 'DecisionTree'):
@@ -81,6 +85,13 @@ class Model:
             importance = cls.feature_importances_
             for imp, feat in zip(importance, loaded['metadata']['features']):
                 feat['importance'] = imp
+        # Set model types
+        if not hasattr(self._get_classifier(), 'classes_'):
+            self._task_type = Model.REGRESSION
+        elif len(self._get_classifier().classes_) <= 2:
+            self._task_type = Model.BINARY_CLASSIFICATION
+        elif len(self._get_classifier().classes_) > 2:
+            self._task_type = Model.MULTILABEL_CLASSIFICATION
 
     @_check_if_model_is_ready
     def _get_classifier(self):
@@ -201,6 +212,44 @@ class Model:
         """
         return self._metadata
 
+    @property
+    @_check_if_model_is_ready
+    def is_classification(self):
+        return self._task_type >= Model.CLASSIFICATION
+
+    @property
+    @_check_if_model_is_ready
+    def is_binary_classification(self):
+        return self._task_type == Model.BINARY_CLASSIFICATION
+
+    @property
+    @_check_if_model_is_ready
+    def is_miltilabel_classification(self):
+        return self._task_type == Model.MULTILABEL_CLASSIFICATION
+
+    @property
+    @_check_if_model_is_ready
+    def is_regression(self):
+        return self._task_type == Model.REGRESSION
+
+    @_check_if_model_is_ready
+    def task_type(self, simplify=True, as_text=False):
+        if not as_text:
+            if simplify:
+                return Model.CLASSIFICATION if self.is_classification else Model.REGRESSION
+            else:
+                return self._task_type
+        else:
+            if simplify:
+                return 'classification' if self.is_classification else 'regression'
+            else:
+                if self.is_binary_classification:
+                    return 'binary_classification'
+                elif self.is_multilabel_classification:
+                    return 'multilabel_classification'
+                elif self.is_regression:
+                    return 'regression'
+
     @_check_if_model_is_ready
     def features(self):
         """Get the features of the model
@@ -253,8 +302,10 @@ class Model:
             'cls_type': str(classifier_type),
             'cls_name': classifier_type.__name__,
             'is_explainable': self._is_explainable,
-            'class_names': self._get_class_names()
+            'task': self.task_type(simplify=False, as_text=True)
         }
+        if self.is_classification:
+            result['model']['class_names'] = self._get_class_names()
         return result
 
     @_check_if_model_is_ready
@@ -299,8 +350,11 @@ class Model:
             RuntimeError: If the model is not ready.
         """
         input = self._validate(features)
-        result = self._model.predict(input).astype(int)
-        result = self._get_class_names()[result]
+        if self.is_classification:
+            result = self._model.predict(input).astype(int)
+            result = self._get_class_names()[result]
+        elif self.is_regression:
+            result = self._model.predict(input)
         return result
 
     @_check_if_model_is_ready
@@ -323,6 +377,9 @@ class Model:
         Raises:
             RuntimeError: If the model is not ready.
         """
+        # Test for model task
+        if self.is_regression:
+            raise ValueError("Can't predict probabilities with regression model")
         input = self._validate(features)
         prediction = self._model.predict_proba(input)
         colnames = self._get_class_names()
@@ -346,15 +403,15 @@ class Model:
             dict: Explanations.
 
         Raises:
-            RuntimeError: If the model classifier doesn't support SHAP
+            RuntimeError: If the model is not ready.
+            ValueError: If the model classifier doesn't support SHAP
                 explanations or the model is not ready.
-            ValueError: If the explainer outputs an unknown object
+                Or if the explainer outputs an unknown object
         """
         if not self._is_explainable:
             model_name = type(self._model).__name_
             msg = 'Model not supported for explanations: {}'.format(model_name)
-            raise RuntimeError(msg)
-
+            raise ValueError(msg)
         input = self._validate(features)
         # Apply pre-processing
         preprocessed = self.preprocess(input)
@@ -365,26 +422,29 @@ class Model:
 
         # Create an index to handle multiple samples input
         index = preprocessed.index
-        class_names = self._get_class_names()
-        if isinstance(shap_values, list):
-            # The result is one set of explanations per target class
-            process_shap_values = False
-        elif isinstance(shap_values, np.ndarray) and len(class_names) == 2:
-            # The result is one ndarray set of explanations for one class
-            # Expected only for binary classification for some models.
-            # Ex: LGBMClassifier
-            process_shap_values = True
-        else:
-            raise ValueError('Unknown objet class for shap_values variable')
-
-        # Format output
         result = {}
-        for i, c in enumerate(class_names):
-            if process_shap_values:
-                _values = shap_values * (-1 if i == 0 else 1)
+        if self.is_classification:
+            class_names = self._get_class_names()
+            if isinstance(shap_values, list):
+                # The result is one set of explanations per target class
+                process_shap_values = False
+            elif isinstance(shap_values, np.ndarray) and self.is_binary_classification:
+                # The result is one ndarray set of explanations for one class
+                # Expected only for binary classification for some models.
+                # Ex: LGBMClassifier
+                process_shap_values = True
             else:
-                _values = shap_values[i]
-            result[c] = pd.DataFrame(_values,
-                                     index=index,
-                                     columns=colnames).to_dict(orient='records')
+                raise ValueError('Unknown objet class for shap_values variable')
+            # Format output
+            for i, c in enumerate(class_names):
+                if process_shap_values:
+                    _values = shap_values * (-1 if i == 0 else 1)
+                else:
+                    _values = shap_values[i]
+                result[c] = pd.DataFrame(_values,
+                                         index=index,
+                                         columns=colnames).to_dict(orient='records')
+        else:  # self.is_regression
+            result = pd.DataFrame(shap_values, index=index,
+                                  columns=colnames).to_dict(orient='records')
         return result
