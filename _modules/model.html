@@ -150,6 +150,7 @@
 <span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 
 
 <span class="k">try</span><span class="p">:</span>
@@ -179,6 +180,8 @@
 <span class="sd">        file_name (str): File path of the serialized model.</span>
 <span class="sd">            It must be a file that can be loaded using :mod:`joblib`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">REGRESSION</span><span class="p">,</span> <span class="n">CLASSIFICATION</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+    <span class="n">BINARY_CLASSIFICATION</span><span class="p">,</span> <span class="n">MULTILABEL_CLASSIFICATION</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">get_last_column</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
@@ -189,6 +192,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_ready</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># Explainability</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shap_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Booster&#39;</span><span class="p">,</span> <span class="s1">&#39;Booster&#39;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;RandomForest&#39;</span><span class="p">,</span> <span class="s1">&#39;XGB&#39;</span><span class="p">,</span> <span class="s1">&#39;CatBoost&#39;</span><span class="p">,</span> <span class="s1">&#39;LGBM&#39;</span><span class="p">,</span> <span class="s1">&#39;DecisionTree&#39;</span><span class="p">):</span>
@@ -224,6 +228,13 @@
             <span class="n">importance</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">feature_importances_</span>
             <span class="k">for</span> <span class="n">imp</span><span class="p">,</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">importance</span><span class="p">,</span> <span class="n">loaded</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;features&#39;</span><span class="p">]):</span>
                 <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;importance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imp</span>
+        <span class="c1"># Set model types</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">(),</span> <span class="s1">&#39;classes_&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">REGRESSION</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">()</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">BINARY_CLASSIFICATION</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">()</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">MULTILABEL_CLASSIFICATION</span>
 
     <span class="nd">@_check_if_model_is_ready</span>
     <span class="k">def</span> <span class="nf">_get_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -247,7 +258,7 @@
 
     <span class="nd">@_check_if_model_is_ready</span>
     <span class="k">def</span> <span class="nf">_get_class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">()</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">()</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
     <span class="nd">@_check_if_model_is_ready</span>
     <span class="k">def</span> <span class="nf">_feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -344,6 +355,44 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
 
+    <span class="nd">@property</span>
+    <span class="nd">@_check_if_model_is_ready</span>
+    <span class="k">def</span> <span class="nf">is_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">&gt;=</span> <span class="n">Model</span><span class="o">.</span><span class="n">CLASSIFICATION</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@_check_if_model_is_ready</span>
+    <span class="k">def</span> <span class="nf">is_binary_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">==</span> <span class="n">Model</span><span class="o">.</span><span class="n">BINARY_CLASSIFICATION</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@_check_if_model_is_ready</span>
+    <span class="k">def</span> <span class="nf">is_multilabel_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">==</span> <span class="n">Model</span><span class="o">.</span><span class="n">MULTILABEL_CLASSIFICATION</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@_check_if_model_is_ready</span>
+    <span class="k">def</span> <span class="nf">is_regression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">==</span> <span class="n">Model</span><span class="o">.</span><span class="n">REGRESSION</span>
+
+<div class="viewcode-block" id="Model.task_type"><a class="viewcode-back" href="../index.html#model.Model.task_type">[docs]</a>    <span class="nd">@_check_if_model_is_ready</span>
+    <span class="k">def</span> <span class="nf">task_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_text</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">as_text</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">simplify</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">CLASSIFICATION</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_classification</span> <span class="k">else</span> <span class="n">Model</span><span class="o">.</span><span class="n">REGRESSION</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">simplify</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;classification&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_classification</span> <span class="k">else</span> <span class="s1">&#39;regression&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_binary_classification</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;binary_classification&#39;</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multilabel_classification</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;multilabel_classification&#39;</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_regression</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;regression&#39;</span></div>
+
 <div class="viewcode-block" id="Model.features"><a class="viewcode-back" href="../index.html#model.Model.features">[docs]</a>    <span class="nd">@_check_if_model_is_ready</span>
     <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the features of the model</span>
@@ -396,8 +445,10 @@
             <span class="s1">&#39;cls_type&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">classifier_type</span><span class="p">),</span>
             <span class="s1">&#39;cls_name&#39;</span><span class="p">:</span> <span class="n">classifier_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
             <span class="s1">&#39;is_explainable&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explainable</span><span class="p">,</span>
-            <span class="s1">&#39;class_names&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()</span>
+            <span class="s1">&#39;task&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_type</span><span class="p">(</span><span class="n">simplify</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_classification</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">][</span><span class="s1">&#39;class_names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">result</span>
 
 <div class="viewcode-block" id="Model.preprocess"><a class="viewcode-back" href="../index.html#model.Model.preprocess">[docs]</a>    <span class="nd">@_check_if_model_is_ready</span>
@@ -442,8 +493,7 @@
 <span class="sd">            RuntimeError: If the model is not ready.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()[</span><span class="n">result</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="Model.predict_proba"><a class="viewcode-back" href="../index.html#model.Model.predict_proba">[docs]</a>    <span class="nd">@_check_if_model_is_ready</span>
@@ -466,6 +516,9 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: If the model is not ready.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Test for model task</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_regression</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t predict probabilities with regression model&quot;</span><span class="p">)</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="n">colnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()</span>
@@ -489,15 +542,15 @@
 <span class="sd">            dict: Explanations.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            RuntimeError: If the model classifier doesn&#39;t support SHAP</span>
+<span class="sd">            RuntimeError: If the model is not ready.</span>
+<span class="sd">            ValueError: If the model classifier doesn&#39;t support SHAP</span>
 <span class="sd">                explanations or the model is not ready.</span>
-<span class="sd">            ValueError: If the explainer outputs an unknown object</span>
+<span class="sd">                Or if the explainer outputs an unknown object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_explainable</span><span class="p">:</span>
             <span class="n">model_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span><span class="o">.</span><span class="n">__name_</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Model not supported for explanations: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
         <span class="c1"># Apply pre-processing</span>
         <span class="n">preprocessed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
@@ -508,28 +561,31 @@
 
         <span class="c1"># Create an index to handle multiple samples input</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">index</span>
-        <span class="n">class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="c1"># The result is one set of explanations per target class</span>
-            <span class="n">process_shap_values</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">class_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="c1"># The result is one ndarray set of explanations for one class</span>
-            <span class="c1"># Expected only for binary classification for some models.</span>
-            <span class="c1"># Ex: LGBMClassifier</span>
-            <span class="n">process_shap_values</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown objet class for shap_values variable&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Format output</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_names</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">process_shap_values</span><span class="p">:</span>
-                <span class="n">_values</span> <span class="o">=</span> <span class="n">shap_values</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_classification</span><span class="p">:</span>
+            <span class="n">class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># The result is one set of explanations per target class</span>
+                <span class="n">process_shap_values</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_binary_classification</span><span class="p">:</span>
+                <span class="c1"># The result is one ndarray set of explanations for one class</span>
+                <span class="c1"># Expected only for binary classification for some models.</span>
+                <span class="c1"># Ex: LGBMClassifier</span>
+                <span class="n">process_shap_values</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">_values</span> <span class="o">=</span> <span class="n">shap_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">result</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">_values</span><span class="p">,</span>
-                                     <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
-                                     <span class="n">columns</span><span class="o">=</span><span class="n">colnames</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown objet class for shap_values variable&#39;</span><span class="p">)</span>
+            <span class="c1"># Format output</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_names</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">process_shap_values</span><span class="p">:</span>
+                    <span class="n">_values</span> <span class="o">=</span> <span class="n">shap_values</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_values</span> <span class="o">=</span> <span class="n">shap_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">_values</span><span class="p">,</span>
+                                         <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+                                         <span class="n">columns</span><span class="o">=</span><span class="n">colnames</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># self.is_regression</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+                                  <span class="n">columns</span><span class="o">=</span><span class="n">colnames</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div></div>
 </pre></div>
 
