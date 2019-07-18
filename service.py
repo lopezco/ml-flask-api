@@ -15,7 +15,7 @@ from functools import wraps
 
 
 # Version of this APP template
-__version__ = '1.0.2'
+__version__ = '1.1.0'
 # Read env variables
 DEBUG = os.environ.get('DEBUG', True)
 MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
