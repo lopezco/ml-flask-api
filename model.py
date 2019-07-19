@@ -30,8 +30,16 @@ def _check_if_model_is_ready(func):
 
 
 class Model:
-    """
-    Model Class that handles the loaded model.
+    """Class that handles the loaded model.
+
+    This class can handle models that respect the scikit-learn API. This
+    includes :class:`sklearn.pipeline.Pipeline`.
+
+    The data coming from a request if validated using the metadata setored with
+    the model. The data fed to the `predict`, `predict_proba`, `explain` handle
+    `preprocess` should be a dictionary that object must contain one key per
+    feature or a list of such dictionaries (recors).
+    Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
     Args:
         file_name (str): File path of the serialized model.
@@ -57,19 +65,6 @@ class Model:
 
     # Private
     def _load(self):
-        """Model loading function.
-
-        Once it finishes, the instance `_is_ready` is set to `True`.
-
-        The loaded object is expected to be a :class:`dict` containing the
-        following keys:
-            model (:obj:`model`): It is the instance of the learnt model.
-            metadata (dict): Contains information about the model such as:
-                features (list[dict]): List of records each one with (at least)
-                    the `name` and `type` of the variable.
-                    Default (`default`) value can also be defined.
-                class_names (list[str], optional): List of class names in order.
-        """
         # Load serialized model (dict expected)
         loaded = joblib.load(self._file_name)
         self._model = loaded['model']
@@ -95,18 +90,6 @@ class Model:
 
     @_check_if_model_is_ready
     def _get_classifier(self):
-        """Returns the classifier of this model.
-
-        If the underlying model is a :class:`sklearn.pipeline.Pipeline` this
-        function returns the classifier inside it, else it returns directly the
-        underlying model.
-
-        Returns:
-            object: Classifier
-
-        Raises:
-            RuntimeError: If the model is not ready.
-        """
         model_name = type(self._model).__name__
         if model_name == 'Pipeline':
             return self._model.steps[-1][1]
@@ -123,29 +106,11 @@ class Model:
 
     @_check_if_model_is_ready
     def _validate(self, input):
-        """Validate data.
-
-        This function is used to validate data coming from a request. This
-        method uses the information in the metadata to validate: features names,
-        types and cast it when necessary.
-
-        Args:
-            input (dict): The expected object must contain one key per feature.
-            Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
-
-        Returns:
-            dict: Validated data with the same format as the input.
-
-        Raises:
-            RuntimeError: If the model is not ready.
-            ValueError: If there are Unknown variable types in the metadata.
-            AttributeError: If there is no 'features' key in the metadata.
-        """
         if self.metadata.get('features') is None:
             raise AttributeError("Missing key 'features' in model's metadata")
 
         # Ensure input is lislike shaped
-        _, input = self.is_listlike(input)
+        _, input = self._is_listlike(input)
         # Get feature names in order
         feature_names = [f['name'] for f in self.metadata['features']]
         # Create an index to handle multiple samples input
@@ -175,19 +140,51 @@ class Model:
             # TO DO: add validation logic
         return df
 
-    # Public (static)
+    @property
+    @_check_if_model_is_ready
+    def _is_classification(self):
+        return self._task_type >= Model.CLASSIFICATION
+
+    @property
+    @_check_if_model_is_ready
+    def _is_binary_classification(self):
+        return self._task_type == Model.BINARY_CLASSIFICATION
+
+    @property
+    @_check_if_model_is_ready
+    def _is_multilabel_classification(self):
+        return self._task_type == Model.MULTILABEL_CLASSIFICATION
+
+    @property
+    @_check_if_model_is_ready
+    def _is_regression(self):
+        return self._task_type == Model.REGRESSION
+
+    # Private (static)
     @staticmethod
-    def is_listlike(data):
-        is_listlike = pd.api.types.is_list_like(data)
+    def _is_listlike(data):
+        _is_listlike = pd.api.types.is_list_like(data)
         is_dict = isinstance(data, dict)
-        is_input_listlike = is_listlike and not is_dict
+        is_input_listlike = _is_listlike and not is_dict
         if not is_input_listlike:
             data = [data]
         return is_input_listlike, data
 
     # Public
     def load(self):
-        """Launch model loading in a separated thread"""
+        """Launch model loading in a separated thread
+
+        Once it finishes, the instance `_is_ready` is set to `True`.
+
+        The loaded object is expected to be a :class:`dict` containing the
+        following keys:
+            model (:obj:`model`): It is the instance of the learnt model.
+            metadata (dict): Contains information about the model such as:
+                features (list[dict]): List of records each one with (at least)
+                    the `name` and `type` of the variable.
+                    Default (`default`) value can also be defined.
+                class_names (list[str], optional): List of class names in order.
+        """
         Thread(target=self._load).start()
 
     def is_ready(self):
@@ -212,42 +209,24 @@ class Model:
         """
         return self._metadata
 
-    @property
-    @_check_if_model_is_ready
-    def is_classification(self):
-        return self._task_type >= Model.CLASSIFICATION
-
-    @property
-    @_check_if_model_is_ready
-    def is_binary_classification(self):
-        return self._task_type == Model.BINARY_CLASSIFICATION
-
-    @property
-    @_check_if_model_is_ready
-    def is_multilabel_classification(self):
-        return self._task_type == Model.MULTILABEL_CLASSIFICATION
-
-    @property
-    @_check_if_model_is_ready
-    def is_regression(self):
-        return self._task_type == Model.REGRESSION
-
     @_check_if_model_is_ready
     def task_type(self, simplify=True, as_text=False):
         if not as_text:
             if simplify:
-                return Model.CLASSIFICATION if self.is_classification else Model.REGRESSION
+                return (Model.CLASSIFICATION if self._is_classification
+                        else Model.REGRESSION)
             else:
                 return self._task_type
         else:
             if simplify:
-                return 'classification' if self.is_classification else 'regression'
+                return ('classification' if self._is_classification
+                        else 'regression')
             else:
-                if self.is_binary_classification:
+                if self._is_binary_classification:
                     return 'binary_classification'
-                elif self.is_multilabel_classification:
+                elif self._is_multilabel_classification:
                     return 'multilabel_classification'
-                elif self.is_regression:
+                elif self._is_regression:
                     return 'regression'
 
     @_check_if_model_is_ready
@@ -284,6 +263,8 @@ class Model:
             * cls_name (str): Classifier name.
             * is_explainable (bool):`True` if the model class allows SHAP
               explanations to be computed.
+            * task (str): Task type. Either 'binary_classification',
+              'multilabel_classification' or 'regression'
             * class_names (list or None): Class names if defined.
 
         Returns:
@@ -304,7 +285,7 @@ class Model:
             'is_explainable': self._is_explainable,
             'task': self.task_type(simplify=False, as_text=True)
         }
-        if self.is_classification:
+        if self._is_classification:
             result['model']['class_names'] = self._get_class_names()
         return result
 
@@ -374,8 +355,8 @@ class Model:
             RuntimeError: If the model is not ready.
         """
         # Test for model task
-        if self.is_regression:
-            raise ValueError("Can't predict probabilities with regression model")
+        if self._is_regression:
+            raise ValueError("Can't predict probabilities of regression model")
         input = self._validate(features)
         prediction = self._model.predict_proba(input)
         colnames = self._get_class_names()
@@ -405,7 +386,7 @@ class Model:
                 Or if the explainer outputs an unknown object
         """
         if not self._is_explainable:
-            model_name = type(self._model).__name_
+            model_name = type(self._model).__name__
             msg = 'Model not supported for explanations: {}'.format(model_name)
             raise ValueError(msg)
         input = self._validate(features)
@@ -419,12 +400,12 @@ class Model:
         # Create an index to handle multiple samples input
         index = preprocessed.index
         result = {}
-        if self.is_classification:
+        if self._is_classification:
             class_names = self._get_class_names()
             if isinstance(shap_values, list):
                 # The result is one set of explanations per target class
                 process_shap_values = False
-            elif isinstance(shap_values, np.ndarray) and self.is_binary_classification:
+            elif isinstance(shap_values, np.ndarray) and self._is_binary_classification:
                 # The result is one ndarray set of explanations for one class
                 # Expected only for binary classification for some models.
                 # Ex: LGBMClassifier
@@ -440,7 +421,7 @@ class Model:
                 result[c] = pd.DataFrame(_values,
                                          index=index,
                                          columns=colnames).to_dict(orient='records')
-        else:  # self.is_regression
+        else:  # self._is_regression
             result = pd.DataFrame(shap_values, index=index,
                                   columns=colnames).to_dict(orient='records')
         return result
