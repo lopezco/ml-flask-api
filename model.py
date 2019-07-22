@@ -63,8 +63,9 @@ class Model(object):
     Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
     Args:
-        file_name (str): File path of the serialized model.
-            It must be a file that can be loaded using :mod:`joblib`
+        file_name (str):
+            File path of the serialized model. It must be a file that can be
+            loaded using :mod:`joblib`
     """
 
     def __init__(self, file_name):
@@ -193,16 +194,14 @@ class Model(object):
     def load(self):
         """Launch model loading in a separated thread
 
-        Once it finishes, the instance `_is_ready` is set to `True`.
+        Once it finishes, the instance `_is_ready` parameter is set to `True`.
 
         The loaded object is expected to be a :class:`dict` containing the
-        following keys:
-            model (:obj:`model`): It is the instance of the learnt model.
-            metadata (dict): Contains information about the model such as:
-                features (list[dict]): List of records each one with (at least)
-                    the `name` and `type` of the variable.
-                    Default (`default`) value can also be defined.
-                class_names (list[str], optional): List of class names in order.
+        following keys: `model` (model object) and `metadata` (:class:`dict`).
+        The later contains one or two elements: `features`
+        (:class:`list` of :class:`dict`) with at least the `name` and `type` of
+        the variables and optional `class_names` (:class:`list` of :class:`str`)
+        with the list of class-names in order (for classification).
         """
         Thread(target=self._load).start()
 
@@ -210,7 +209,8 @@ class Model(object):
         """Check if model is already loaded.
 
         Returns:
-            bool: is the model already loaded and ready for predictions?
+            bool:
+                Is the model already loaded and ready for predictions?
         """
         return self._is_ready
 
@@ -220,8 +220,9 @@ class Model(object):
         """Get metadata of the model_name.
 
         Returns:
-            dict: Metadata of the model containing information about the
-                features and classes (optional)
+            dict:
+                Metadata of the model containing information about the features
+                and classes (optional)
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -230,6 +231,21 @@ class Model(object):
 
     @_check_if_model_is_ready
     def task_type(self, as_text=False):
+        """Get task type of the model
+
+        Either 'REGRESSION', 'CLASSIFICATION', 'BINARY_CLASSIFICATION' or
+        'MULTILABEL_CLASSIFICATION'.
+
+        Returns:
+            :class:`Task` or :class:`str`:
+                If `as_text=False`, returns the task of the model
+                (classification, regression, etc.) as a :class:`Task` class
+                instance. If `as_text=True`, returns the task of the model as
+                text.
+
+        Raises:
+            RuntimeError: If the model is not ready.
+        """
         return self._task_type.name if as_text else self._task_type
 
     @_check_if_model_is_ready
@@ -242,7 +258,8 @@ class Model(object):
         `feature_importances_` atribute), they will also be present.
 
         Returns:
-            list[dict]: Model features.
+            list[dict]:
+                Model features.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -257,21 +274,29 @@ class Model(object):
         This function gives complete description of the model.
         The returned ibject contais the following keys:
 
-        * metadata (dict): Model metadata (see :func:`~model.Model.metadata`).
-        * model (dict): Context information of the learnt model.
-            * class (str): Type of the underlying model object.
-            * cls_type (str): Classifier type. It could be the same as
-              'class'. However, for :class:`sklearn.pipeline.Pipeline`
-              it will output the class of the classifier inside it.
-            * cls_name (str): Classifier name.
-            * is_explainable (bool):`True` if the model class allows SHAP
-              explanations to be computed.
-            * task (str): Task type. Either 'binary_classification',
-              'multilabel_classification' or 'regression'
-            * class_names (list or None): Class names if defined.
+            metadata (:class:`dict`): Model metadata (see :func:`~model.Model.metadata`).
+
+            model (:class:`dict`): Context information of the learnt model.
+                class (:class:`str`):
+                    Type of the underlying model object.
+                cls_type (:class:`str`):
+                    Classifier type. It could be the same as 'class'. However, for
+                    :class:`sklearn.pipeline.Pipeline` it will output the class of
+                    the classifier inside it.
+                cls_name (:class:`str`):
+                    Classifier name.
+                is_explainable (:class:`bool`):
+                    `True` if the model class allows SHAP explanations to be
+                    computed.
+                task (:class:`str`):
+                    Task type. Either 'BINARY_CLASSIFICATION',
+                    'MULTILABEL_CLASSIFICATION' or 'REGRESSION'
+                class_names (:class:`list` or :class:`None`):
+                    Class names if defined.
 
         Returns:
-            dict: Information about the model.
+            dict:
+                Information about the model.
 
         Raises:
             RuntimeError: If the model is not ready.
@@ -299,11 +324,13 @@ class Model(object):
         This function is used before prediction or interpretation.
 
         Args:
-            input (dict): The expected object must contain one key per feature.
-            Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
+            input (dict):
+                The expected object must contain one key per feature.
+                Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
-            dict: Processed data if a preprocessing function was definded in the
+            dict:
+                Processed data if a preprocessing function was definded in the
                 model's metadata. The format must be the same as the input.
 
         Raises:
@@ -323,12 +350,14 @@ class Model(object):
         metadata.
 
         Args:
-            features (dict): Record to be used as input data to make
-                predictions. The expected object must contain one key per
-                feature. Ex: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
+            features (dict):
+                Record to be used as input data to make predictions. The
+                expected object must contain one key per feature.
+                Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
         Returns:
-            int or str: Predicted class.
+            int or str:
+                Predicted class.
 
         Raises:
             RuntimeError: If the model is not ready.

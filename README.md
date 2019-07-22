@@ -1,7 +1,9 @@
-## Python-Flask Docker template for Machine Learning model deployment including SHAP explanations
+# Flask template for Machine Learning model deployment
 
 A simple example of a Python web service for real time machine learning model deployment.
 It is based on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce)
+
+This includes Docker integration and SHAP explanations for the deployed model.
 
 [Website](https://lopezco.github.io/python-flask-sklearn-docker-template) | [Source](https://github.com/lopezco/python-flask-sklearn-docker-template/) | [Issues](https://github.com/lopezco/python-flask-sklearn-docker-template/issues)
 

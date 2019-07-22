@@ -82,6 +82,20 @@ model.load()
 @app.route('/predict', methods=['POST'])
 @returns_json
 def predict():
+    """Make preditcions and explain them
+
+    Model inference using input data. This is the main function.
+
+    URL Params:
+        proba (int):
+            1 in order to compute probabilities for classification models or 0
+            to return predicted class (classification) or value (regression).
+            Default 0.
+        explain (int):
+            1 in order to compute moeldel explanations for the predicted value.
+            This will return a status 500 when the model does not support
+            explanations. Default 0.
+    """
     # Parameters
     do_proba = int(flask.request.args.get('proba', 0))
     do_explain = int(flask.request.args.get('explain', 0))
@@ -118,17 +132,34 @@ def predict():
 
 @app.route('/predict_proba', methods=['POST'])
 def predict_proba():
+    """Predict probabilities
+
+    Model inference using input data. This method will redirect the call  to
+    `/predict?proba=1`
+
+    """
     return flask.redirect(flask.url_for('predict', proba=1))
 
 
 @app.route('/explain', methods=['POST'])
 def explain():
+    """Predict probabilities and explanations
+
+    Model inference using input data. This method will redirect the call  to
+    `/predict?proba=1&explain=1`
+
+    """
     return flask.redirect(flask.url_for('predict', proba=1, explain=1))
 
 
 @app.route('/info',  methods=['GET'])
 @returns_json
 def info():
+    """Model information
+
+    Get the model information: metadata, type, classifier, etc.
+
+    """
     try:
         info = model.info
     except Exception as err:
@@ -140,6 +171,12 @@ def info():
 @app.route('/features',  methods=['GET'])
 @returns_json
 def features():
+    """Model features
+
+    Get the model accepted features. This includes feature inportance if the
+    model allows it.
+
+    """
     try:
         features = model.features()
     except Exception as err:
@@ -151,6 +188,13 @@ def features():
 @app.route('/preprocess',  methods=['POST'])
 @returns_json
 def preprocess():
+    """Preporcess input data
+
+    Get the preprocessed version of the input data. If the model does not
+    include preprocessing steps, this method will return the same data as the
+    input.
+
+    """
     input = json.loads(flask.request.data or '{}')
     try:
         data = model.preprocess(input)
@@ -176,6 +220,12 @@ def readiness_check():
 @app.route('/service-info')
 @returns_json
 def service_info():
+    """Service information
+
+    Get information about the service: up-time, varsion of the template, name
+    of the served model, etc.
+
+    """
     info =  {
         'version-template': __version__,
         'running-since': SERVICE_START_TIMESTAMP,

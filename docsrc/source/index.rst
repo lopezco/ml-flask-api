@@ -1,18 +1,16 @@
-Welcome to ML Model Deployment's documentation!
-===============================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
 .. mdinclude:: ../../README.md
 
 
-Flask Application
+Code Documentation
 ==================
 
 Model Class
-------------------
+-----------
 .. automodule:: model
   :members:
   :undoc-members:
@@ -21,7 +19,7 @@ Model Class
 
 
 Service
-------------------
+-------
 .. automodule:: service
   :members:
   :undoc-members:
