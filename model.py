@@ -29,7 +29,28 @@ def _check_if_model_is_ready(func):
     return wrapper
 
 
-class Model:
+class Task(int):
+    _REGRESSION, _CLASSIFICATION = 0, 1
+    _BINARY_CLASSIFICATION, _MULTILABEL_CLASSIFICATION = 2, 3
+
+    def __new__(cls, name):
+        assert(isinstance(name, str))
+        try:
+            val = getattr(cls, '_{}'.format(name.upper()))
+        except AttributeError:
+            raise AttributeError('Unknown task-name: {}'.format(name))
+        else:
+            return  super(Task, cls).__new__(cls, val)
+
+    def __init__(self, name):
+        self.name = name.upper()
+        self._id = int(self)
+
+    def __repr__(self):
+        return "Task('{}')".format(self._name)
+
+
+class Model(object):
     """Class that handles the loaded model.
 
     This class can handle models that respect the scikit-learn API. This
@@ -45,8 +66,6 @@ class Model:
         file_name (str): File path of the serialized model.
             It must be a file that can be loaded using :mod:`joblib`
     """
-    REGRESSION, CLASSIFICATION = 0, 1
-    BINARY_CLASSIFICATION, MULTILABEL_CLASSIFICATION = 2, 3
 
     def __init__(self, file_name):
         def get_last_column(X):
@@ -82,11 +101,11 @@ class Model:
                 feat['importance'] = imp
         # Set model types
         if not hasattr(self._get_classifier(), 'classes_'):
-            self._task_type = Model.REGRESSION
+            self._task_type = Task('REGRESSION')
         elif len(self._get_classifier().classes_) <= 2:
-            self._task_type = Model.BINARY_CLASSIFICATION
+            self._task_type = Task('BINARY_CLASSIFICATION')
         elif len(self._get_classifier().classes_) > 2:
-            self._task_type = Model.MULTILABEL_CLASSIFICATION
+            self._task_type = Task('MULTILABEL_CLASSIFICATION')
 
     @_check_if_model_is_ready
     def _get_classifier(self):
@@ -143,22 +162,22 @@ class Model:
     @property
     @_check_if_model_is_ready
     def _is_classification(self):
-        return self._task_type >= Model.CLASSIFICATION
+        return self._task_type >= Task('CLASSIFICATION')
 
     @property
     @_check_if_model_is_ready
     def _is_binary_classification(self):
-        return self._task_type == Model.BINARY_CLASSIFICATION
+        return self._task_type == Task('BINARY_CLASSIFICATION')
 
     @property
     @_check_if_model_is_ready
     def _is_multilabel_classification(self):
-        return self._task_type == Model.MULTILABEL_CLASSIFICATION
+        return self._task_type == Task('MULTILABEL_CLASSIFICATION')
 
     @property
     @_check_if_model_is_ready
     def _is_regression(self):
-        return self._task_type == Model.REGRESSION
+        return self._task_type == Task('REGRESSION')
 
     # Private (static)
     @staticmethod
@@ -210,24 +229,8 @@ class Model:
         return self._metadata
 
     @_check_if_model_is_ready
-    def task_type(self, simplify=True, as_text=False):
-        if not as_text:
-            if simplify:
-                return (Model.CLASSIFICATION if self._is_classification
-                        else Model.REGRESSION)
-            else:
-                return self._task_type
-        else:
-            if simplify:
-                return ('classification' if self._is_classification
-                        else 'regression')
-            else:
-                if self._is_binary_classification:
-                    return 'binary_classification'
-                elif self._is_multilabel_classification:
-                    return 'multilabel_classification'
-                elif self._is_regression:
-                    return 'regression'
+    def task_type(self, as_text=False):
+        return self._task_type.name if as_text else self._task_type
 
     @_check_if_model_is_ready
     def features(self):
@@ -283,7 +286,7 @@ class Model:
             'cls_type': str(classifier_type),
             'cls_name': classifier_type.__name__,
             'is_explainable': self._is_explainable,
-            'task': self.task_type(simplify=False, as_text=True)
+            'task': self.task_type(as_text=True)
         }
         if self._is_classification:
             result['model']['class_names'] = self._get_class_names()
