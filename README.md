@@ -116,7 +116,7 @@ $ curl -X GET http://localhost:5000/service-info
   "debug": true,
   "running-since": 1563355369.6482198,
   "serving-model": "model.joblib",
-  "version-template": "1.1.1"
+  "version-template": "1.1.2"
 }
 ```
 
