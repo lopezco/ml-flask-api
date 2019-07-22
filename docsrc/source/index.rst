@@ -17,7 +17,7 @@ Model Class
   :members:
   :undoc-members:
   :show-inheritance:
-  :exclude-members: _check_if_model_is_ready, SHAP_AVAILABLE
+  :exclude-members: SHAP_AVAILABLE, Task
 
 
 Service
@@ -26,7 +26,7 @@ Service
   :members:
   :undoc-members:
   :show-inheritance:
-  :exclude-members: base_dir, DEBUG, app, model_path, model
+  :exclude-members: DEBUG, MODEL_NAME, ENVIRONMENT, SERVICE_START_TIMESTAMP, app, model, NumpyEncoder, returns_json, create_model_instance
 
 
 Indices and tables
