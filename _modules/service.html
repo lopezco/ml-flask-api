@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>service &mdash; ML Model Deployment 0.1.0 documentation</title>
+  <title>service &mdash; ML Model Deployment 1.1.2 documentation</title>
   
 
   
@@ -56,6 +56,10 @@
 
           
             
+            
+              <div class="version">
+                1.1.2
+              </div>
             
           
 
@@ -158,7 +162,7 @@
 
 
 <span class="c1"># Version of this APP template</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.1.0&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.1.2&#39;</span>
 <span class="c1"># Read env variables</span>
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">MODEL_NAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MODEL_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;model.joblib&#39;</span><span class="p">)</span>
@@ -166,19 +170,19 @@
 <span class="n">SERVICE_START_TIMESTAMP</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="NumpyEncoder"><a class="viewcode-back" href="../index.html#service.NumpyEncoder">[docs]</a><span class="k">class</span> <span class="nc">NumpyEncoder</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">NumpyEncoder</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Encoder of numpy primitives into JSON strings&quot;&quot;&quot;</span>
     <span class="n">primitives</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inexact</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NumpyEncoder.default"><a class="viewcode-back" href="../index.html#service.NumpyEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">flexible</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">void</span><span class="p">)</span> <span class="k">else</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitives</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="returns_json"><a class="viewcode-back" href="../index.html#service.returns_json">[docs]</a><span class="k">def</span> <span class="nf">returns_json</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">returns_json</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Wraps a function to transform the output into a JSON string with a</span>
 <span class="sd">    specific encoder&quot;&quot;&quot;</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -189,10 +193,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NumpyEncoder</span><span class="p">),</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                                   <span class="n">mimetype</span><span class="o">=</span><span class="s1">&#39;application/json; charset=utf-8&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">decorated_function</span></div>
+    <span class="k">return</span> <span class="n">decorated_function</span>
 
 
-<div class="viewcode-block" id="create_model_instance"><a class="viewcode-back" href="../index.html#service.create_model_instance">[docs]</a><span class="k">def</span> <span class="nf">create_model_instance</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">create_model_instance</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">MODEL_NAME</span>
     <span class="c1"># Get current directory</span>
     <span class="n">base_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
@@ -205,7 +209,7 @@
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Model </span><span class="si">{}</span><span class="s2"> not found&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_path</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Model found! now create an instance</span>
-        <span class="k">return</span> <span class="n">Model</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Model</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
 
 
 <span class="c1"># Create Flask Application</span>
@@ -225,6 +229,20 @@
 <div class="viewcode-block" id="predict"><a class="viewcode-back" href="../index.html#service.predict">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/predict&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="nd">@returns_json</span>
 <span class="k">def</span> <span class="nf">predict</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Make preditcions and explain them</span>
+
+<span class="sd">    Model inference using input data. This is the main function.</span>
+
+<span class="sd">    URL Params:</span>
+<span class="sd">        proba (int):</span>
+<span class="sd">            1 in order to compute probabilities for classification models or 0</span>
+<span class="sd">            to return predicted class (classification) or value (regression).</span>
+<span class="sd">            Default 0.</span>
+<span class="sd">        explain (int):</span>
+<span class="sd">            1 in order to compute moeldel explanations for the predicted value.</span>
+<span class="sd">            This will return a status 500 when the model does not support</span>
+<span class="sd">            explanations. Default 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Parameters</span>
     <span class="n">do_proba</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;proba&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">do_explain</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;explain&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
@@ -261,17 +279,34 @@
 
 <div class="viewcode-block" id="predict_proba"><a class="viewcode-back" href="../index.html#service.predict_proba">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/predict_proba&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Predict probabilities</span>
+
+<span class="sd">    Model inference using input data. This method will redirect the call  to</span>
+<span class="sd">    `/predict?proba=1`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;predict&#39;</span><span class="p">,</span> <span class="n">proba</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="explain"><a class="viewcode-back" href="../index.html#service.explain">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/explain&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">explain</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Predict probabilities and explanations</span>
+
+<span class="sd">    Model inference using input data. This method will redirect the call  to</span>
+<span class="sd">    `/predict?proba=1&amp;explain=1`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;predict&#39;</span><span class="p">,</span> <span class="n">proba</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">explain</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="info"><a class="viewcode-back" href="../index.html#service.info">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/info&#39;</span><span class="p">,</span>  <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="nd">@returns_json</span>
 <span class="k">def</span> <span class="nf">info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Model information</span>
+
+<span class="sd">    Get the model information: metadata, type, classifier, etc.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">info</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
@@ -283,6 +318,12 @@
 <div class="viewcode-block" id="features"><a class="viewcode-back" href="../index.html#service.features">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/features&#39;</span><span class="p">,</span>  <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="nd">@returns_json</span>
 <span class="k">def</span> <span class="nf">features</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Model features</span>
+
+<span class="sd">    Get the model accepted features. This includes feature inportance if the</span>
+<span class="sd">    model allows it.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">features</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
@@ -294,6 +335,13 @@
 <div class="viewcode-block" id="preprocess"><a class="viewcode-back" href="../index.html#service.preprocess">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/preprocess&#39;</span><span class="p">,</span>  <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="nd">@returns_json</span>
 <span class="k">def</span> <span class="nf">preprocess</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Preporcess input data</span>
+
+<span class="sd">    Get the preprocessed version of the input data. If the model does not</span>
+<span class="sd">    include preprocessing steps, this method will return the same data as the</span>
+<span class="sd">    input.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">input</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="ow">or</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
@@ -319,6 +367,12 @@
 <div class="viewcode-block" id="service_info"><a class="viewcode-back" href="../index.html#service.service_info">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/service-info&#39;</span><span class="p">)</span>
 <span class="nd">@returns_json</span>
 <span class="k">def</span> <span class="nf">service_info</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Service information</span>
+
+<span class="sd">    Get information about the service: up-time, varsion of the template, name</span>
+<span class="sd">    of the served model, etc.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">info</span> <span class="o">=</span>  <span class="p">{</span>
         <span class="s1">&#39;version-template&#39;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span>
         <span class="s1">&#39;running-since&#39;</span><span class="p">:</span> <span class="n">SERVICE_START_TIMESTAMP</span><span class="p">,</span>

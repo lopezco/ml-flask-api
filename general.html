@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Flask template for Machine Learning model deployment &mdash; ML Model Deployment 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ML Model Deployment
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Flask template for Machine Learning model deployment</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#before-using">Before using</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#run-the-service">Run the service</a><ul>
+<li><a class="reference internal" href="#on-docker">On Docker</a><ul>
+<li><a class="reference internal" href="#development">Development</a></li>
+<li><a class="reference internal" href="#production">Production</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#on-local-python-environment">On local Python environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage-of-the-api">Usage of the API</a><ul>
+<li><a class="reference internal" href="#health">Health</a></li>
+<li><a class="reference internal" href="#is-model-ready">Is model ready?</a></li>
+<li><a class="reference internal" href="#service-information">Service information</a></li>
+<li><a class="reference internal" href="#get-information-about-the-model">Get information about the model</a></li>
+<li><a class="reference internal" href="#prediction">Prediction</a></li>
+<li><a class="reference internal" href="#predict-probabilities">Predict probabilities</a></li>
+<li><a class="reference internal" href="#get-features-of-the-model-with-features-importances">Get features of the Model with features importances</a></li>
+<li><a class="reference internal" href="#get-shap-explanations">Get SHAP explanations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML Model Deployment</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Flask template for Machine Learning model deployment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/general.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="flask-template-for-machine-learning-model-deployment">
+<h1>Flask template for Machine Learning model deployment<a class="headerlink" href="#flask-template-for-machine-learning-model-deployment" title="Permalink to this headline">¶</a></h1>
+<p>A simple example of a Python web service for real time machine learning model deployment.
+It is based on <a class="reference external" href="https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce">this post</a></p>
+<p>This includes Docker integration and SHAP explanations for the deployed model.</p>
+<p><a class="reference external" href="https://lopezco.github.io/python-flask-sklearn-docker-template">Website</a> | <a class="reference external" href="https://github.com/lopezco/python-flask-sklearn-docker-template/">Source</a> | <a class="reference external" href="https://github.com/lopezco/python-flask-sklearn-docker-template/issues">Issues</a></p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">docker</a></p></li>
+<li><p><a class="reference external" href="https://docs.docker.com/compose/install/">docker-compose</a> (Recommended)</p></li>
+</ul>
+</div>
+<div class="section" id="before-using">
+<h3>Before using<a class="headerlink" href="#before-using" title="Permalink to this headline">¶</a></h3>
+<p>Make sure that you have a model in the main directory.
+You can launch the example using the following line in order to create a quick classification model.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python example/build_linear_binary.py
+</pre></div>
+</div>
+<p>or one of the scripts in the <code class="docutils literal notranslate"><span class="pre">example</span></code> folder</p>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">variables.env</span></code>: Controls API parameters via environment variables</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>: Controls Python packages installed inside the container</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.joblib</span></code>: Model saved inside a dictionary with this format</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="nx">trained_model</span><span class="p">,</span>
+    <span class="s2">&quot;metadata&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;features&quot;</span><span class="o">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">},</span>
+                              <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature2&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+                              <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature3&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">}]}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="run-the-service">
+<h2>Run the service<a class="headerlink" href="#run-the-service" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="on-docker">
+<h3>On Docker<a class="headerlink" href="#on-docker" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="development">
+<h4>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h4>
+<p>Build the image (this has to be done every time the code or the model change)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose build
+</pre></div>
+</div>
+<p>Create and run the container</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose up
+</pre></div>
+</div>
+</div>
+<div class="section" id="production">
+<h4>Production<a class="headerlink" href="#production" title="Permalink to this headline">¶</a></h4>
+<p>Using uWSGI and nginx for production.</p>
+<p>Build the image (this has to be done every time the code or the model change)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose -f docker-compose-production.yml build
+</pre></div>
+</div>
+<p>Create and run the container</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose -f docker-compose-production.yml up
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="on-local-python-environment">
+<h3>On local Python environment<a class="headerlink" href="#on-local-python-environment" title="Permalink to this headline">¶</a></h3>
+<p>Create the environment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create -n flask_ml_template <span class="nv">python</span><span class="o">=</span><span class="m">3</span>
+$ conda activate flask_ml_template
+</pre></div>
+</div>
+<p>Install requirements</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install -r ./requirements-service.txt
+$ pip install -r ./requirements.txt
+</pre></div>
+</div>
+<p>Run the API service</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python service.py
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="usage-of-the-api">
+<h2>Usage of the API<a class="headerlink" href="#usage-of-the-api" title="Permalink to this headline">¶</a></h2>
+<p>This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling
+the example model.</p>
+<div class="section" id="health">
+<h3>Health<a class="headerlink" href="#health" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/health</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/health
+up
+</pre></div>
+</div>
+</div>
+<div class="section" id="is-model-ready">
+<h3>Is model ready?<a class="headerlink" href="#is-model-ready" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/ready</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/ready
+ready
+</pre></div>
+</div>
+</div>
+<div class="section" id="service-information">
+<h3>Service information<a class="headerlink" href="#service-information" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/service-info</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/service-info
+<span class="o">{</span>
+  <span class="s2">&quot;debug&quot;</span>: true,
+  <span class="s2">&quot;running-since&quot;</span>: <span class="m">1563355369</span>.6482198,
+  <span class="s2">&quot;serving-model&quot;</span>: <span class="s2">&quot;model.joblib&quot;</span>,
+  <span class="s2">&quot;version-template&quot;</span>: <span class="s2">&quot;1.1.1&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-information-about-the-model">
+<h3>Get information about the model<a class="headerlink" href="#get-information-about-the-model" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/info</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/info
+<span class="o">{</span>
+  <span class="s2">&quot;metadata&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;features&quot;</span>: <span class="o">[</span>
+      <span class="o">{</span>
+        <span class="s2">&quot;default&quot;</span>: -1,
+        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.2,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature1&quot;</span>,
+        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+      <span class="o">}</span>,
+      <span class="o">{</span>
+        <span class="s2">&quot;default&quot;</span>: -1,
+        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.1,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature2&quot;</span>,
+        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+      <span class="o">}</span>,
+      <span class="o">{</span>
+        <span class="s2">&quot;default&quot;</span>: -1,
+        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.3,
+        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature3&quot;</span>,
+        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+      <span class="o">}</span>
+    <span class="o">]</span>
+  <span class="o">}</span>,
+  <span class="s2">&quot;model&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;class&quot;</span>: <span class="s2">&quot;&lt;class &#39;sklearn.ensemble.forest.RandomForestClassifier&#39;&gt;&quot;</span>,
+    <span class="s2">&quot;cls_name&quot;</span>: <span class="s2">&quot;RandomForestClassifier&quot;</span>,
+    <span class="s2">&quot;cls_type&quot;</span>: <span class="s2">&quot;&lt;class &#39;sklearn.ensemble.forest.RandomForestClassifier&#39;&gt;&quot;</span>,
+    <span class="s2">&quot;is_explainable&quot;</span>: <span class="nb">false</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="prediction">
+<h3>Prediction<a class="headerlink" href="#prediction" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -d <span class="s1">&#39;[{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}, {&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}]&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST http://localhost:5000/predict
+<span class="o">{</span>
+  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[</span><span class="m">0</span>, <span class="m">0</span><span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="predict-probabilities">
+<h3>Predict probabilities<a class="headerlink" href="#predict-probabilities" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict?proba=1</span></code> or <code class="docutils literal notranslate"><span class="pre">/predict_proba</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -d <span class="s1">&#39;{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST <span class="s2">&quot;http://localhost:5000/predict?proba=1&quot;</span>
+<span class="o">{</span>
+  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[{</span>
+    <span class="s2">&quot;0&quot;</span>: <span class="m">0</span>.8,
+    <span class="s2">&quot;1&quot;</span>: <span class="m">0</span>.2
+  <span class="o">}]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-features-of-the-model-with-features-importances">
+<h3>Get features of the Model with features importances<a class="headerlink" href="#get-features-of-the-model-with-features-importances" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/features</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET <span class="s2">&quot;http://localhost:5000/features&quot;</span>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">&quot;default&quot;</span>: -1,
+    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.2,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature1&quot;</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">&quot;default&quot;</span>: -1,
+    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.1,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature2&quot;</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">&quot;default&quot;</span>: -1,
+    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.3,
+    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature3&quot;</span>,
+    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-shap-explanations">
+<h3>Get SHAP explanations<a class="headerlink" href="#get-shap-explanations" title="Permalink to this headline">¶</a></h3>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict?proba=1&amp;explain=1</span></code> or <code class="docutils literal notranslate"><span class="pre">/explain</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$curl</span> -d <span class="s1">&#39;{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST <span class="s2">&quot;http://localhost:5000/predict?proba=1&amp;explain=1&quot;</span>
+<span class="o">{</span>
+  <span class="s2">&quot;explanation&quot;</span>: <span class="o">{</span>
+    <span class="s2">&quot;feature1&quot;</span>: <span class="m">0</span>.10000000149011613,
+    <span class="s2">&quot;feature2&quot;</span>: <span class="m">0</span>.03333333383003871,
+    <span class="s2">&quot;feature3&quot;</span>: -0.1666666691501935
+  <span class="o">}</span>,
+  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[{</span>
+    <span class="s2">&quot;0&quot;</span>: <span class="m">0</span>.7,
+    <span class="s2">&quot;1&quot;</span>: <span class="m">0</span>.3
+  <span class="o">}]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, lopezco
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
