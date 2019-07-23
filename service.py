@@ -95,11 +95,29 @@ def predict():
             1 in order to compute moeldel explanations for the predicted value.
             This will return a status 500 when the model does not support
             explanations. Default 0.
+
+    Payload:
+        JSON string that can take two forms:
+
+        The first, the payload is a record or a list of records with one value
+        per feature. This will be directly interpreted as the input for the
+        model.
+
+        The second, the payload is a dictionary with 1 or 2 elements. The key
+        "_data" is mandatory because this will be the input for the model and
+        its format is expected to be a record or a list of records. On the
+        other hand the key "_samples" (optianal) will be used to obtain
+        different explanations (see :func:`~model.Model.explain`)
     """
     # Parameters
     do_proba = int(flask.request.args.get('proba', 0))
     do_explain = int(flask.request.args.get('explain', 0))
     input = json.loads(flask.request.data or '{}')
+    if isinstance(input, dict):
+        samples = input.get('_samples', None)
+        input = input.get('_data', {})
+    else:
+        samples = None
     # Predict
     before_time = time()
     try:
@@ -111,7 +129,7 @@ def predict():
     # Explain
     if do_explain:
         try:
-            explanation = model.explain(input)
+            explanation = model.explain(input, samples=samples)
         except Exception as err:
             return flask.Response(str(err), status=500)
         else:

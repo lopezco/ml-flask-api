@@ -140,24 +140,27 @@ class Model(object):
         # Convert features to expected types
         for feature in self.metadata['features']:
             name, var_type = feature['name'], feature['type']
-            default = feature.get('default', np.nan)
+            default = feature.get('default', None)
             categories = feature.get('categories', None)
             if name not in df.columns:
-                df[name] = default
+                df[name] = default or np.nan
             else:
                 if var_type == 'numeric':
-                    df[name] =  df[name].astype(float)
+                    var_type = float
                 elif var_type == 'string':
-                    df[name] =  df[name].astype(str)
-                elif var_type == 'category':
-                    if categories is not None:
-                        var_type = CategoricalDtype(categories=categories,
-                                                    ordered=True)
-                    df[name] =  df[name].astype(var_type)
+                    var_type = str
+                elif (var_type == 'category') and (categories is not None):
+                    var_type = CategoricalDtype(categories=categories,
+                                                ordered=True)
                 else:
                     msg = 'Unknown variable type: {}'.format(var_type)
                     raise ValueError(msg)
-            # TO DO: add validation logic
+
+                if default is None:
+                    df[name] =  df[name].astype(var_type)
+                else:
+                    df[name] =  df[name].fillna(default).astype(var_type)
+            # TO DO: add more validation logic
         return df
 
     @property
@@ -396,18 +399,29 @@ class Model(object):
         return df.to_dict(orient='records')
 
     @_check_if_model_is_ready
-    def explain(self, features):
+    def explain(self, features, samples=None):
         """Explain the prediction of a model.
 
         Explanation function that returns the SHAP value for each feture.
         The returned object contais one value per feature of the model.
+
+        If `sample` is not given, then the explanations are the raw output of
+        the trees, which varies by model (for binary classification in XGBoost
+        this is the log odds ratio). On the contrary, if `sample` is given,
+        then the explanations are the output of the model transformed into
+        probability space (note that this means the SHAP values now sum to the
+        probability output of the model).
+        See the `SHAP documentation <https://shap.readthedocs.io/en/latest/#shap.TreeExplainer>`_ for details.
 
         Args:
             features (dict): Record to be used as input data to explain the
                 model. The expected object must contain one key per
                 feature. Example:
                 {'feature1': 5, 'feature2': 'A', 'feature3': 10}
-
+            samples (dict): Records to be used as a sample pool for the
+                explanations. It must have the same structure as `features`
+                parameter. According to SHAP documentation, anywhere from 100
+                to 1000 random background samples are good sizes to use.
         Returns:
             dict: Explanations.
 
@@ -421,11 +435,21 @@ class Model(object):
             model_name = type(self._model).__name__
             msg = 'Model not supported for explanations: {}'.format(model_name)
             raise ValueError(msg)
+        # Process input
         input = self._validate(features)
-        # Apply pre-processing
         preprocessed = self.preprocess(input)
+        # Define parameters
+        if samples is None:
+            params = {
+                'feature_dependence': 'tree_path_dependent',
+                'model_output': 'margin'}
+        else:
+            params = {
+                'data': self.preprocess(self._validate(samples)),
+                'feature_dependence': 'independent',
+                'model_output': 'probability'}
         # Explainer
-        explainer = shap.TreeExplainer(self._get_classifier())
+        explainer = shap.TreeExplainer(self._get_classifier(), **params)
         colnames = self._feature_names()
         shap_values = explainer.shap_values(preprocessed[colnames].values)
 
