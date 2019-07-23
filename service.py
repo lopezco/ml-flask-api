@@ -68,7 +68,7 @@ def create_model_instance():
 # Create Flask Application
 app = flask.Flask(__name__)
 # Customize Flask Application
-app.logger.setLevel(logging.DEBUG)
+app.logger.setLevel(logging.DEBUG if DEBUG else logging.ERROR)
 app.json_encoder = NumpyEncoder
 # Create Model instance
 model = create_model_instance()
@@ -141,10 +141,10 @@ def predict():
         'params': flask.request.args,
         'request_id': flask.request.headers.get('X-Correlation-ID'),
         'result': result,
-        'model': model.metadata,
+        'model_info': model.info,
         'elapsed_time': after_time - before_time
     }
-    app.logger.info(to_be_logged)
+    app.logger.debug(to_be_logged)
     return result
 
 
