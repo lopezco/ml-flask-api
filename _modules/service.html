@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>service &mdash; ML Model Deployment 1.1.2 documentation</title>
+  <title>service &mdash; ML Model Deployment 1.2.0 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.1.2
+                1.2.0
               </div>
             
           
@@ -162,7 +162,7 @@
 
 
 <span class="c1"># Version of this APP template</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.1.2&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.2.0&#39;</span>
 <span class="c1"># Read env variables</span>
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">MODEL_NAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MODEL_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;model.joblib&#39;</span><span class="p">)</span>
@@ -242,11 +242,29 @@
 <span class="sd">            1 in order to compute moeldel explanations for the predicted value.</span>
 <span class="sd">            This will return a status 500 when the model does not support</span>
 <span class="sd">            explanations. Default 0.</span>
+
+<span class="sd">    Payload:</span>
+<span class="sd">        JSON string that can take two forms:</span>
+
+<span class="sd">        The first, the payload is a record or a list of records with one value</span>
+<span class="sd">        per feature. This will be directly interpreted as the input for the</span>
+<span class="sd">        model.</span>
+
+<span class="sd">        The second, the payload is a dictionary with 1 or 2 elements. The key</span>
+<span class="sd">        &quot;_data&quot; is mandatory because this will be the input for the model and</span>
+<span class="sd">        its format is expected to be a record or a list of records. On the</span>
+<span class="sd">        other hand the key &quot;_samples&quot; (optianal) will be used to obtain</span>
+<span class="sd">        different explanations (see :func:`~model.Model.explain`)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Parameters</span>
     <span class="n">do_proba</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;proba&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">do_explain</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;explain&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="nb">input</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="ow">or</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_samples&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_data&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># Predict</span>
     <span class="n">before_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
@@ -258,7 +276,7 @@
     <span class="c1"># Explain</span>
     <span class="k">if</span> <span class="n">do_explain</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">explanation</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">explain</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+            <span class="n">explanation</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">explain</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">),</span> <span class="n">status</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

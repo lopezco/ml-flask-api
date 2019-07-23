@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>model &mdash; ML Model Deployment 1.1.2 documentation</title>
+  <title>model &mdash; ML Model Deployment 1.2.0 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.1.2
+                1.2.0
               </div>
             
           
@@ -287,24 +287,27 @@
         <span class="c1"># Convert features to expected types</span>
         <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]:</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">var_type</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
-            <span class="n">default</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">categories</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;categories&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s1">&#39;numeric&#39;</span><span class="p">:</span>
-                    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span>  <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="nb">float</span>
                 <span class="k">elif</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s1">&#39;string&#39;</span><span class="p">:</span>
-                    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span>  <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s1">&#39;category&#39;</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">categories</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">var_type</span> <span class="o">=</span> <span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">,</span>
-                                                    <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span>  <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="nb">str</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">var_type</span> <span class="o">==</span> <span class="s1">&#39;category&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">categories</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="n">CategoricalDtype</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="n">categories</span><span class="p">,</span>
+                                                <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Unknown variable type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="c1"># TO DO: add validation logic</span>
+
+                <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span>  <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span>  <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">default</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">var_type</span><span class="p">)</span>
+            <span class="c1"># TO DO: add more validation logic</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="nd">@property</span>
@@ -543,18 +546,29 @@
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.explain"><a class="viewcode-back" href="../index.html#model.Model.explain">[docs]</a>    <span class="nd">@_check_if_model_is_ready</span>
-    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Explain the prediction of a model.</span>
 
 <span class="sd">        Explanation function that returns the SHAP value for each feture.</span>
 <span class="sd">        The returned object contais one value per feature of the model.</span>
+
+<span class="sd">        If `sample` is not given, then the explanations are the raw output of</span>
+<span class="sd">        the trees, which varies by model (for binary classification in XGBoost</span>
+<span class="sd">        this is the log odds ratio). On the contrary, if `sample` is given,</span>
+<span class="sd">        then the explanations are the output of the model transformed into</span>
+<span class="sd">        probability space (note that this means the SHAP values now sum to the</span>
+<span class="sd">        probability output of the model).</span>
+<span class="sd">        See the `SHAP documentation &lt;https://shap.readthedocs.io/en/latest/#shap.TreeExplainer&gt;`_ for details.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            features (dict): Record to be used as input data to explain the</span>
 <span class="sd">                model. The expected object must contain one key per</span>
 <span class="sd">                feature. Example:</span>
 <span class="sd">                {&#39;feature1&#39;: 5, &#39;feature2&#39;: &#39;A&#39;, &#39;feature3&#39;: 10}</span>
-
+<span class="sd">            samples (dict): Records to be used as a sample pool for the</span>
+<span class="sd">                explanations. It must have the same structure as `features`</span>
+<span class="sd">                parameter. According to SHAP documentation, anywhere from 100</span>
+<span class="sd">                to 1000 random background samples are good sizes to use.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: Explanations.</span>
 
@@ -568,11 +582,21 @@
             <span class="n">model_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Model not supported for explanations: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="c1"># Process input</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-        <span class="c1"># Apply pre-processing</span>
         <span class="n">preprocessed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="c1"># Define parameters</span>
+        <span class="k">if</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;feature_dependence&#39;</span><span class="p">:</span> <span class="s1">&#39;tree_path_dependent&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;model_output&#39;</span><span class="p">:</span> <span class="s1">&#39;margin&#39;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">samples</span><span class="p">)),</span>
+                <span class="s1">&#39;feature_dependence&#39;</span><span class="p">:</span> <span class="s1">&#39;independent&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;model_output&#39;</span><span class="p">:</span> <span class="s1">&#39;probability&#39;</span><span class="p">}</span>
         <span class="c1"># Explainer</span>
-        <span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">TreeExplainer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">())</span>
+        <span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">TreeExplainer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_classifier</span><span class="p">(),</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="n">colnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span><span class="p">()</span>
         <span class="n">shap_values</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">shap_values</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">[</span><span class="n">colnames</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Flask template for Machine Learning model deployment &mdash; ML Model Deployment 1.1.2 documentation</title>
+  <title>Flask template for Machine Learning model deployment &mdash; ML Model Deployment 1.2.0 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.1.2
+                1.2.0
               </div>
             
           
@@ -301,7 +301,7 @@ ready
   <span class="s2">&quot;debug&quot;</span>: true,
   <span class="s2">&quot;running-since&quot;</span>: <span class="m">1563355369</span>.6482198,
   <span class="s2">&quot;serving-model&quot;</span>: <span class="s2">&quot;model.joblib&quot;</span>,
-  <span class="s2">&quot;version-template&quot;</span>: <span class="s2">&quot;1.1.2&quot;</span>
+  <span class="s2">&quot;version-template&quot;</span>: <span class="s2">&quot;1.2.0&quot;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -437,16 +437,29 @@ loaded using <code class="xref py py-mod docutils literal notranslate"><span cla
 </dl>
 <dl class="method">
 <dt id="model.Model.explain">
-<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.explain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.explain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Explain the prediction of a model.</p>
 <p>Explanation function that returns the SHAP value for each feture.
 The returned object contais one value per feature of the model.</p>
+<p>If <cite>sample</cite> is not given, then the explanations are the raw output of
+the trees, which varies by model (for binary classification in XGBoost
+this is the log odds ratio). On the contrary, if <cite>sample</cite> is given,
+then the explanations are the output of the model transformed into
+probability space (note that this means the SHAP values now sum to the
+probability output of the model).
+See the <a class="reference external" href="https://shap.readthedocs.io/en/latest/#shap.TreeExplainer">SHAP documentation</a> for details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to explain the
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to explain the
 model. The expected object must contain one key per
 feature. Example:
-{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p>
+{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p></li>
+<li><p><strong>samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Records to be used as a sample pool for the
+explanations. It must have the same structure as <cite>features</cite>
+parameter. According to SHAP documentation, anywhere from 100
+to 1000 random background samples are good sizes to use.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Explanations.</p>
@@ -709,7 +722,7 @@ model allows it.</p>
 <code class="sig-prename descclassname">service.</code><code class="sig-name descname">predict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make preditcions and explain them</p>
 <p>Model inference using input data. This is the main function.</p>
-<dl class="simple">
+<dl>
 <dt>URL Params:</dt><dd><dl class="simple">
 <dt>proba (int):</dt><dd><p>1 in order to compute probabilities for classification models or 0
 to return predicted class (classification) or value (regression).
@@ -720,6 +733,16 @@ This will return a status 500 when the model does not support
 explanations. Default 0.</p>
 </dd>
 </dl>
+</dd>
+<dt>Payload:</dt><dd><p>JSON string that can take two forms:</p>
+<p>The first, the payload is a record or a list of records with one value
+per feature. This will be directly interpreted as the input for the
+model.</p>
+<p>The second, the payload is a dictionary with 1 or 2 elements. The key
+“_data” is mandatory because this will be the input for the model and
+its format is expected to be a record or a list of records. On the
+other hand the key “_samples” (optianal) will be used to obtain
+different explanations (see <a class="reference internal" href="#model.Model.explain" title="model.Model.explain"><code class="xref py py-func docutils literal notranslate"><span class="pre">explain()</span></code></a>)</p>
 </dd>
 </dl>
 </dd></dl>
