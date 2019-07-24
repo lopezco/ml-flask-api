@@ -54,7 +54,7 @@ class Model(object):
     """Class that handles the loaded model.
 
     This class can handle models that respect the scikit-learn API. This
-    includes :class:`sklearn.pipeline.Pipeline`.
+    includes `sklearn.pipeline.Pipeline <https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html>`_.
 
     The data coming from a request if validated using the metadata setored with
     the model. The data fed to the `predict`, `predict_proba`, `explain` handle
@@ -91,7 +91,7 @@ class Model(object):
         self._metadata = loaded['metadata']
         self._is_ready = True
         # Hydrate class
-        cls = self._get_classifier()
+        cls = self._get_predictor()
         # SHAP
         is_shap_model = type(cls).__name__ in self._shap_models
         self._is_explainable = SHAP_AVAILABLE and is_shap_model
@@ -100,16 +100,16 @@ class Model(object):
             importance = cls.feature_importances_
             for imp, feat in zip(importance, loaded['metadata']['features']):
                 feat['importance'] = imp
-        # Set model types
-        if not hasattr(self._get_classifier(), 'classes_'):
+        # Set model task type
+        if not hasattr(cls, 'classes_'):
             self._task_type = Task('REGRESSION')
-        elif len(self._get_classifier().classes_) <= 2:
+        elif len(cls.classes_) <= 2:
             self._task_type = Task('BINARY_CLASSIFICATION')
-        elif len(self._get_classifier().classes_) > 2:
+        elif len(cls.classes_) > 2:
             self._task_type = Task('MULTILABEL_CLASSIFICATION')
 
     @_check_if_model_is_ready
-    def _get_classifier(self):
+    def _get_predictor(self):
         model_name = type(self._model).__name__
         if model_name == 'Pipeline':
             return self._model.steps[-1][1]
@@ -118,7 +118,7 @@ class Model(object):
 
     @_check_if_model_is_ready
     def _get_class_names(self):
-        return np.array(self._get_classifier().classes_, str)
+        return np.array(self._get_predictor().classes_, str)
 
     @_check_if_model_is_ready
     def _feature_names(self):
@@ -280,14 +280,12 @@ class Model(object):
             metadata (:class:`dict`): Model metadata (see :func:`~model.Model.metadata`).
 
             model (:class:`dict`): Context information of the learnt model.
-                class (:class:`str`):
+                type (:class:`str`):
                     Type of the underlying model object.
-                cls_type (:class:`str`):
-                    Classifier type. It could be the same as 'class'. However, for
-                    :class:`sklearn.pipeline.Pipeline` it will output the class of
-                    the classifier inside it.
-                cls_name (:class:`str`):
-                    Classifier name.
+                predictor_type (:class:`str`):
+                    It could be the same as 'type'. However, for
+                    `sklearn.pipeline.Pipeline <https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html>`_
+                    it will output the class of the predictor inside it.
                 is_explainable (:class:`bool`):
                     `True` if the model class allows SHAP explanations to be
                     computed.
@@ -295,7 +293,7 @@ class Model(object):
                     Task type. Either 'BINARY_CLASSIFICATION',
                     'MULTILABEL_CLASSIFICATION' or 'REGRESSION'
                 class_names (:class:`list` or :class:`None`):
-                    Class names if defined.
+                    Class names if defined (for classification only).
 
         Returns:
             dict:
@@ -308,11 +306,9 @@ class Model(object):
         # Metadata
         result['metadata'] = self._metadata
         # Info from model
-        classifier_type = type(self._get_classifier())
         result['model'] = {
-            'class': str(type(self._model)),
-            'cls_type': str(classifier_type),
-            'cls_name': classifier_type.__name__,
+            'type': str(type(self._model)),
+            'predictor_type': str(type(self._get_predictor())),
             'is_explainable': self._is_explainable,
             'task': self.task_type(as_text=True)
         }
@@ -394,8 +390,7 @@ class Model(object):
             raise ValueError("Can't predict probabilities of regression model")
         input = self._validate(features)
         prediction = self._model.predict_proba(input)
-        colnames = self._get_class_names()
-        df = pd.DataFrame(prediction, columns=colnames)
+        df = pd.DataFrame(prediction, columns=self._get_class_names())
         return df.to_dict(orient='records')
 
     @_check_if_model_is_ready
@@ -405,7 +400,7 @@ class Model(object):
         Explanation function that returns the SHAP value for each feture.
         The returned object contais one value per feature of the model.
 
-        If `sample` is not given, then the explanations are the raw output of
+        If `samples` is not given, then the explanations are the raw output of
         the trees, which varies by model (for binary classification in XGBoost
         this is the log odds ratio). On the contrary, if `sample` is given,
         then the explanations are the output of the model transformed into
@@ -427,8 +422,8 @@ class Model(object):
 
         Raises:
             RuntimeError: If the model is not ready.
-            ValueError: If the model classifier doesn't support SHAP
-                explanations or the model is not ready.
+            ValueError: If the model' predictor doesn't support SHAP
+                explanations or the model is not already loaded.
                 Or if the explainer outputs an unknown object
         """
         if not self._is_explainable:
@@ -449,7 +444,7 @@ class Model(object):
                 'feature_dependence': 'independent',
                 'model_output': 'probability'}
         # Explainer
-        explainer = shap.TreeExplainer(self._get_classifier(), **params)
+        explainer = shap.TreeExplainer(self._get_predictor(), **params)
         colnames = self._feature_names()
         shap_values = explainer.shap_values(preprocessed[colnames].values)
 
@@ -474,8 +469,7 @@ class Model(object):
                     _values = shap_values * (-1 if i == 0 else 1)
                 else:
                     _values = shap_values[i]
-                result[c] = pd.DataFrame(_values,
-                                         index=index,
+                result[c] = pd.DataFrame(_values, index=index,
                                          columns=colnames).to_dict(orient='records')
         else:  # self._is_regression
             result = pd.DataFrame(shap_values, index=index,

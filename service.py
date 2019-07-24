@@ -106,7 +106,7 @@ def predict():
         The second, the payload is a dictionary with 1 or 2 elements. The key
         "_data" is mandatory because this will be the input for the model and
         its format is expected to be a record or a list of records. On the
-        other hand the key "_samples" (optianal) will be used to obtain
+        other hand the key "_samples" (optional) will be used to obtain
         different explanations (see :func:`~model.Model.explain`)
     """
     # Parameters
@@ -146,28 +146,6 @@ def predict():
     }
     app.logger.debug(to_be_logged)
     return result
-
-
-@app.route('/predict_proba', methods=['POST'])
-def predict_proba():
-    """Predict probabilities
-
-    Model inference using input data. This method will redirect the call  to
-    `/predict?proba=1`
-
-    """
-    return flask.redirect(flask.url_for('predict', proba=1))
-
-
-@app.route('/explain', methods=['POST'])
-def explain():
-    """Predict probabilities and explanations
-
-    Model inference using input data. This method will redirect the call  to
-    `/predict?proba=1&explain=1`
-
-    """
-    return flask.redirect(flask.url_for('predict', proba=1, explain=1))
 
 
 @app.route('/info',  methods=['GET'])

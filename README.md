@@ -17,7 +17,8 @@ This includes Docker integration and SHAP explanations for the deployed model.
 ### Before using
 
 Make sure that you have a model in the main directory.
-You can launch the example using the following line in order to create a quick classification model.
+You can launch the example using the following line in order to create a quick
+classification model.
 ```bash
 $ python example/build_linear_binary.py
 ```
@@ -85,10 +86,32 @@ $ python service.py
 
 ## Usage of the API  
 
-This example considers that the API was launched with the default parameters (localhost at port 5000) and its calling
-the example model.
+This example considers that the API was launched with the default parameters
+(`localhost` at port `5000`) and its calling the example model.
 
-### Health
+For `/predict` endpoint the JSON string in the payload of hte request can take
+two forms:
+
+1. The first, the payload is a record or a list of records with one value
+per feature. This will be directly interpreted as the input for the
+model.
+
+2. The second, the payload is a dictionary with 1 or 2 elements. The key
+`_data` is mandatory because this will be the input for the model and
+its format is expected to be a record or a list of records. On the
+other hand, the key `_samples` (optional) will be used to obtain
+different explanations.
+
+If `_samples` is not given, then the explanations returned are the raw output of
+the trees, which varies by model (for binary classification in XGBoost
+this is the log odds ratio). On the contrary, if `_samples` is given,
+then the explanations are the output of the model transformed into
+probability space (note that this means the SHAP values now sum to the
+probability output of the model).
+See the [SHAP documentation](https://shap.readthedocs.io/en/latest/#shap.TreeExplainer)
+for details.
+
+### Check the API's health status
 
 Endpoint: `/health`
 
@@ -106,7 +129,7 @@ $ curl -X GET http://localhost:5000/ready
 ready
 ```
 
-### Service information
+### Get information about service
 
 Endpoint: `/service-info`
 
@@ -150,15 +173,16 @@ $ curl -X GET http://localhost:5000/info
     ]
   },
   "model": {
-    "class": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
-    "cls_name": "RandomForestClassifier",
-    "cls_type": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
-    "is_explainable": false
+    "type": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
+    "predictor_type": "<class 'sklearn.ensemble.forest.RandomForestClassifier'>",
+    "is_explainable": false,
+    "task": "BINARY_CLASSIFICATION",
+    "class_names": ["0", "1"]
   }
 }
 ```
 
-### Prediction
+### Compute predictions
 
 Endpoint: `/predict`
 
@@ -171,7 +195,7 @@ $ curl -d '[{"feature1": 1, "feature2": 1, "feature3": 2}, {"feature1": 1, "feat
 
 ### Predict probabilities
 
-Endpoint: `/predict?proba=1` or `/predict_proba`
+Endpoint: `/predict?proba=1`
 
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
@@ -213,7 +237,7 @@ $ curl -X GET "http://localhost:5000/features"
 
 ### Get SHAP explanations
 
-Endpoint: `/predict?proba=1&explain=1` or `/explain`
+Endpoint: `/predict?proba=1&explain=1`
 
 ```bash
 $curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1&explain=1"
