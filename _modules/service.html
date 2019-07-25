@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>service &mdash; ML Model Deployment 1.2.0 documentation</title>
+  <title>service &mdash; ML Model Deployment 1.3.0 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -162,7 +162,7 @@
 
 
 <span class="c1"># Version of this APP template</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.2.0&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;1.3.0&#39;</span>
 <span class="c1"># Read env variables</span>
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="n">MODEL_NAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MODEL_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;model.joblib&#39;</span><span class="p">)</span>
@@ -215,7 +215,7 @@
 <span class="c1"># Create Flask Application</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="c1"># Customize Flask Application</span>
-<span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="n">DEBUG</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">json_encoder</span> <span class="o">=</span> <span class="n">NumpyEncoder</span>
 <span class="c1"># Create Model instance</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">create_model_instance</span><span class="p">()</span>
@@ -253,7 +253,7 @@
 <span class="sd">        The second, the payload is a dictionary with 1 or 2 elements. The key</span>
 <span class="sd">        &quot;_data&quot; is mandatory because this will be the input for the model and</span>
 <span class="sd">        its format is expected to be a record or a list of records. On the</span>
-<span class="sd">        other hand the key &quot;_samples&quot; (optianal) will be used to obtain</span>
+<span class="sd">        other hand the key &quot;_samples&quot; (optional) will be used to obtain</span>
 <span class="sd">        different explanations (see :func:`~model.Model.explain`)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Parameters</span>
@@ -288,33 +288,11 @@
         <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
         <span class="s1">&#39;request_id&#39;</span><span class="p">:</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;X-Correlation-ID&#39;</span><span class="p">),</span>
         <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span>
-        <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+        <span class="s1">&#39;model_info&#39;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
         <span class="s1">&#39;elapsed_time&#39;</span><span class="p">:</span> <span class="n">after_time</span> <span class="o">-</span> <span class="n">before_time</span>
     <span class="p">}</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">to_be_logged</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">to_be_logged</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span></div>
-
-
-<div class="viewcode-block" id="predict_proba"><a class="viewcode-back" href="../index.html#service.predict_proba">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/predict_proba&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">predict_proba</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Predict probabilities</span>
-
-<span class="sd">    Model inference using input data. This method will redirect the call  to</span>
-<span class="sd">    `/predict?proba=1`</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;predict&#39;</span><span class="p">,</span> <span class="n">proba</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="explain"><a class="viewcode-back" href="../index.html#service.explain">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/explain&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">explain</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Predict probabilities and explanations</span>
-
-<span class="sd">    Model inference using input data. This method will redirect the call  to</span>
-<span class="sd">    `/predict?proba=1&amp;explain=1`</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;predict&#39;</span><span class="p">,</span> <span class="n">proba</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">explain</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="info"><a class="viewcode-back" href="../index.html#service.info">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/info&#39;</span><span class="p">,</span>  <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
