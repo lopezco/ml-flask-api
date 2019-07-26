@@ -111,7 +111,7 @@ html_theme = 'sphinx_rtd_theme'
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'python-flask-sklearn-docker-templatedoc'
+htmlhelp_basename = 'ml-flask-api-doc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -138,7 +138,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'python-flask-sklearn-docker-template.tex', 'python-flask-sklearn-docker-template Documentation',
+    (master_doc, 'ml-flask-api.tex', 'ml-flask-api Documentation',
      'lopezco', 'manual'),
 ]
 
@@ -148,7 +148,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'python-flask-sklearn-docker-template', 'python-flask-sklearn-docker-template Documentation',
+    (master_doc, 'ml-flask-api', 'ml-flask-api Documentation',
      [author], 1)
 ]
 
@@ -159,8 +159,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'python-flask-sklearn-docker-template', 'python-flask-sklearn-docker-template Documentation',
-     author, 'python-flask-sklearn-docker-template', 'One line description of project.',
+    (master_doc, 'ml-flask-api', 'ml-flask-api Documentation',
+     author, 'ml-flask-api', 'One line description of project.',
      'Miscellaneous'),
 ]
 

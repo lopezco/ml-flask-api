@@ -5,7 +5,7 @@ It is based on [this post](https://mikulskibartosz.name/a-comprehensive-guide-to
 
 This includes Docker integration and SHAP explanations for the deployed model.
 
-[Website](https://lopezco.github.io/python-flask-sklearn-docker-template) | [Source](https://github.com/lopezco/python-flask-sklearn-docker-template/) | [Issues](https://github.com/lopezco/python-flask-sklearn-docker-template/issues)
+[Website](https://lopezco.github.io/ml-flask-api) | [Source](https://github.com/lopezco/ml-flask-api/) | [Issues](https://github.com/lopezco/ml-flask-api/issues)
 
 ## Installation
 
