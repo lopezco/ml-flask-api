@@ -18,7 +18,7 @@ else:
     SHAP_AVAILABLE = True
 
 
-def _check_if_model_is_ready(func):
+def _check_readiness(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         self = args[0]
@@ -27,6 +27,22 @@ def _check_if_model_is_ready(func):
         else:
             raise RuntimeError('Model is not ready yet.')
     return wrapper
+
+
+def _check_task(task):
+    def actual_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            self_task = args[0].task_type()
+            strict = task.upper() != 'CLASSIFICATION'
+            target_task = Task(task)
+            if (strict and (self_task == target_task)) or \
+                (not strict and (self_task >= target_task)):
+                return func(*args, **kwargs)
+            else:
+                raise RuntimeError('This method is not available for {} tasks'.format(self_task.name.lower()))
+        return wrapper
+    return actual_decorator
 
 
 class Task(int):
@@ -67,21 +83,24 @@ class Model(object):
             File path of the serialized model. It must be a file that can be
             loaded using :mod:`joblib`
     """
+    # Explainable models
+    _explainable_models = (
+        # Sklearn
+        'DecisionTreeClassifier', 'DecisionTreeRegressor',
+        'RandomForestClassifier', 'RandomForestRegressor',
+        # XGBoost
+        'XGBClassifier', 'XGBRegressor', 'Booster',
+        # CatBoost
+        'CatBoostClassifier', 'CatBoostRegressor',
+        # LightGBM
+        'LGBMClassifier', 'LGBMRegressor')
 
     def __init__(self, file_name):
-        def get_last_column(X):
-            return X[:, -1].reshape(-1, 1)
-
-        setattr(sys.modules['__main__'], 'get_last_column', get_last_column)
         self._file_name = file_name
         self._is_ready = False
         self._model = None
         self._metadata = None
         self._task_type = None
-        # Explainability
-        self._shap_models = ['Booster', 'Booster']
-        for m in ('RandomForest', 'XGB', 'CatBoost', 'LGBM', 'DecisionTree'):
-            self._shap_models.extend([m + 'Classifier', m + 'Regressor'])
 
     # Private
     def _load(self):
@@ -91,40 +110,37 @@ class Model(object):
         self._metadata = loaded['metadata']
         self._is_ready = True
         # Hydrate class
-        cls = self._get_predictor()
+        clf = self._get_predictor()
         # SHAP
-        is_shap_model = type(cls).__name__ in self._shap_models
-        self._is_explainable = SHAP_AVAILABLE and is_shap_model
+        model_name = type(clf).__name__
+        self._is_explainable = SHAP_AVAILABLE and (model_name in self._explainable_models)
         # Feature importances
-        if hasattr(cls, 'feature_importances_'):
-            importance = cls.feature_importances_
+        if hasattr(clf, 'feature_importances_'):
+            importance = clf.feature_importances_
             for imp, feat in zip(importance, loaded['metadata']['features']):
                 feat['importance'] = imp
         # Set model task type
-        if not hasattr(cls, 'classes_'):
+        if not hasattr(clf, 'classes_'):
             self._task_type = Task('REGRESSION')
-        elif len(cls.classes_) <= 2:
+        elif len(clf.classes_) <= 2:
             self._task_type = Task('BINARY_CLASSIFICATION')
-        elif len(cls.classes_) > 2:
+        elif len(clf.classes_) > 2:
             self._task_type = Task('MULTILABEL_CLASSIFICATION')
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def _get_predictor(self):
-        model_name = type(self._model).__name__
-        if model_name == 'Pipeline':
-            return self._model.steps[-1][1]
-        else:
-            return self._model
+        return Model._extract_base_predictor(self._model)
 
-    @_check_if_model_is_ready
+    @_check_readiness
+    @_check_task('classification')
     def _get_class_names(self):
         return np.array(self._get_predictor().classes_, str)
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def _feature_names(self):
         return [variable['name'] for variable in self.features()]
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def _validate(self, input):
         if self.metadata.get('features') is None:
             raise AttributeError("Missing key 'features' in model's metadata")
@@ -164,22 +180,22 @@ class Model(object):
         return df
 
     @property
-    @_check_if_model_is_ready
+    @_check_readiness
     def _is_classification(self):
         return self._task_type >= Task('CLASSIFICATION')
 
     @property
-    @_check_if_model_is_ready
+    @_check_readiness
     def _is_binary_classification(self):
         return self._task_type == Task('BINARY_CLASSIFICATION')
 
     @property
-    @_check_if_model_is_ready
+    @_check_readiness
     def _is_multilabel_classification(self):
         return self._task_type == Task('MULTILABEL_CLASSIFICATION')
 
     @property
-    @_check_if_model_is_ready
+    @_check_readiness
     def _is_regression(self):
         return self._task_type == Task('REGRESSION')
 
@@ -192,6 +208,16 @@ class Model(object):
         if not is_input_listlike:
             data = [data]
         return is_input_listlike, data
+
+    @staticmethod
+    def _extract_base_predictor(model):
+        model_name = type(model).__name__
+        if model_name == 'Pipeline':
+            return Model._extract_base_predictor(model.steps[-1][1])
+        elif 'CalibratedClassifier' in model_name:
+            return Model._extract_base_predictor(model.base_estimator)
+        else:
+            return model
 
     # Public
     def load(self):
@@ -218,7 +244,7 @@ class Model(object):
         return self._is_ready
 
     @property
-    @_check_if_model_is_ready
+    @_check_readiness
     def metadata(self):
         """Get metadata of the model_name.
 
@@ -232,7 +258,7 @@ class Model(object):
         """
         return self._metadata
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def task_type(self, as_text=False):
         """Get task type of the model
 
@@ -251,7 +277,7 @@ class Model(object):
         """
         return self._task_type.name if as_text else self._task_type
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def features(self):
         """Get the features of the model
 
@@ -270,7 +296,7 @@ class Model(object):
         return deepcopy(self.metadata['features'])
 
     @property
-    @_check_if_model_is_ready
+    @_check_readiness
     def info(self):
         """Get model information.
 
@@ -316,7 +342,7 @@ class Model(object):
             result['model']['class_names'] = self._get_class_names()
         return result
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def preprocess(self, input):
         """Preprocess data
 
@@ -340,7 +366,7 @@ class Model(object):
         else:
             return input
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def predict(self, features):
         """Make a prediciton
 
@@ -365,7 +391,8 @@ class Model(object):
         result = self._model.predict(input)
         return result
 
-    @_check_if_model_is_ready
+    @_check_readiness
+    @_check_task('classification')
     def predict_proba(self, features):
         """Make a prediciton
 
@@ -383,17 +410,14 @@ class Model(object):
             dict: Predicted class probabilities.
 
         Raises:
-            RuntimeError: If the model is not ready.
+            RuntimeError: If the model isn't ready or the task isn't classification.
         """
-        # Test for model task
-        if self._is_regression:
-            raise ValueError("Can't predict probabilities of regression model")
         input = self._validate(features)
         prediction = self._model.predict_proba(input)
         df = pd.DataFrame(prediction, columns=self._get_class_names())
         return df.to_dict(orient='records')
 
-    @_check_if_model_is_ready
+    @_check_readiness
     def explain(self, features, samples=None):
         """Explain the prediction of a model.
 
