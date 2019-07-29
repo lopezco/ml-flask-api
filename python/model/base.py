@@ -62,7 +62,7 @@ class Task(int):
 
 
 class BaseModel(object):
-    """Base Class that handles the loaded model."""
+    """Abstract class that handles the loaded model."""
     family = ''
     # Explainable models
     _explainable_models = tuple()
@@ -77,30 +77,37 @@ class BaseModel(object):
 
     # Abstract
     def _load(self):
+        """Abstract method"""
         raise NotImplementedError()
 
     @_check()
     def _get_predictor(self):
+        """Abstract method"""
         raise NotImplementedError()
 
     @_check(task='classification')
     def _get_class_names(self):
+        """Abstract method"""
         raise NotImplementedError()
 
     @_check()
     def preprocess(self, features):
+        """Abstract method"""
         raise NotImplementedError()
 
     @_check()
     def predict(self, features):
+        """Abstract method"""
         raise NotImplementedError()
 
     @_check(task='classification')
     def predict_proba(self, features):
+        """Abstract method"""
         raise NotImplementedError()
 
     @_check(explainable=True)
     def explain(self, features, samples=None):
+        """Abstract method"""
         raise NotImplementedError()
 
     # Private
