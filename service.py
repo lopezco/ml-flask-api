@@ -115,7 +115,9 @@ def predict():
     input = json.loads(flask.request.data or '{}')
     if isinstance(input, dict):
         samples = input.get('_samples', None)
-        input = input.get('_data', {})
+        data = input.get('_data', {})
+        if len(data.items()):
+            input = data
     else:
         samples = None
     # Predict
