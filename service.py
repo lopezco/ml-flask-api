@@ -15,7 +15,7 @@ from python.utils.encoder import ExtendedEncoder, returns_json
 from python.factory import ModelFactory
 
 # Version of this APP template
-__version__ = '1.4.0'
+__version__ = '1.4.1'
 # Read env variables
 DEBUG = os.environ.get('DEBUG', True)
 MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
@@ -72,7 +72,9 @@ def predict():
     input = json.loads(flask.request.data or '{}')
     if isinstance(input, dict):
         samples = input.get('_samples', None)
-        input = input.get('_data', {})
+        data = input.get('_data', {})
+        if len(data.items()):
+            input = data
     else:
         samples = None
     # Predict
