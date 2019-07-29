@@ -137,7 +137,7 @@ class BaseModel(object):
             raise AttributeError("Missing key 'features' in model's metadata")
 
         # Ensure input is lislike shaped
-        _, input = self._is_listlike(input)
+        input = self._get_list_from(input)
         # Get feature names in order
         feature_names = [f['name'] for f in self.metadata['features']]
         # Create an index to handle multiple samples input
@@ -192,13 +192,13 @@ class BaseModel(object):
 
     # Private (static)
     @staticmethod
-    def _is_listlike(data):
-        _is_listlike = pd.api.types.is_list_like(data)
-        is_dict = isinstance(data, dict)
-        is_input_listlike = _is_listlike and not is_dict
-        if not is_input_listlike:
-            data = [data]
-        return is_input_listlike, data
+    def _get_list_from(data):
+        if isinstance(data, dict):
+            return [data]
+        elif pd.api.types.is_list_like(data):
+            return data
+        else:
+            return [data]
 
     # Public
     def load(self):
@@ -284,7 +284,7 @@ class BaseModel(object):
         This function gives complete description of the model.
         The returned ibject contais the following keys:
 
-            metadata (:class:`dict`): Model metadata (see :func:`~model.Model.metadata`).
+            metadata (:class:`dict`): Model metadata (see :func:`~python.model.base.BaseModel.metadata`).
 
             model (:class:`dict`): Context information of the learnt model.
                 type (:class:`str`):
