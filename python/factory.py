@@ -3,6 +3,7 @@ from .model import SklearnModel
 
 
 class ModelFactory(object):
+    available_models = (SklearnModel, )
 
     @classmethod
     def create_model(cls, model_name, model_type='SKLEARN_MODEL'):
@@ -17,5 +18,6 @@ class ModelFactory(object):
             raise RuntimeError("Model {} not found".format(model_path))
         else:
             # Model found! now create an instance
-            if model_type == 'SKLEARN_MODEL':
-                return SklearnModel(model_path)
+            for model_class in cls.available_models:
+                if model_class.family == model_type:
+                    return model_class(model_path)

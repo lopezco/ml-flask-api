@@ -17,29 +17,25 @@ else:
     SHAP_AVAILABLE = True
 
 
-def _check_readiness(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        self = args[0]
-        if self.is_ready():
-            return func(*args, **kwargs)
-        else:
-            raise RuntimeError('Model is not ready yet.')
-    return wrapper
-
-
-def _check_task(task):
+def _check(ready=True, explainable=False, task=None):
     def actual_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            self_task = args[0].task_type()
-            strict = task.upper() != 'CLASSIFICATION'
-            target_task = Task(task)
-            if (strict and (self_task == target_task)) or \
-                (not strict and (self_task >= target_task)):
-                return func(*args, **kwargs)
-            else:
-                raise RuntimeError('This method is not available for {} tasks'.format(self_task.name.lower()))
+            self = args[0]
+            # Check rediness
+            if ready and not self.is_ready():
+                raise RuntimeError('Model is not ready yet.')
+            # Check explainable
+            if explainable and not self._is_explainable:
+                model_name = type(self._model).__name__
+                raise ValueError('Model not supported for explanations: {}'.format(model_name))
+            # Check for task
+            if task is not None:
+                self_task = self.task_type()
+                if not getattr(self_task, '__ge__' if task.upper() == 'CLASSIFICATION' else '__eq__')(Task(task)):
+                    raise RuntimeError('This method is not available for {} tasks'.format(self_task.name.lower()))
+            # Execute function
+            return func(*args, **kwargs)
         return wrapper
     return actual_decorator
 
@@ -67,6 +63,7 @@ class Task(int):
 
 class BaseModel(object):
     """Base Class that handles the loaded model."""
+    family = ''
     # Explainable models
     _explainable_models = tuple()
 
@@ -76,34 +73,33 @@ class BaseModel(object):
         self._model = None
         self._metadata = None
         self._task_type = None
+        self._is_explainable = False
 
     # Abstract
     def _load(self):
         raise NotImplementedError()
 
-    @_check_readiness
+    @_check()
     def _get_predictor(self):
         raise NotImplementedError()
 
-    @_check_readiness
-    @_check_task('classification')
+    @_check(task='classification')
     def _get_class_names(self):
         raise NotImplementedError()
 
-    @_check_readiness
-    def preprocess(self, input):
+    @_check()
+    def preprocess(self, features):
         raise NotImplementedError()
 
-    @_check_readiness
+    @_check()
     def predict(self, features):
         raise NotImplementedError()
 
-    @_check_readiness
-    @_check_task('classification')
+    @_check(task='classification')
     def predict_proba(self, features):
         raise NotImplementedError()
 
-    @_check_readiness
+    @_check(explainable=True)
     def explain(self, features, samples=None):
         raise NotImplementedError()
 
@@ -131,11 +127,11 @@ class BaseModel(object):
         elif len(clf.classes_) > 2:
             self._task_type = Task('MULTILABEL_CLASSIFICATION')
 
-    @_check_readiness
+    @_check()
     def _feature_names(self):
         return [variable['name'] for variable in self.features()]
 
-    @_check_readiness
+    @_check()
     def _validate(self, input):
         if self.metadata.get('features') is None:
             raise AttributeError("Missing key 'features' in model's metadata")
@@ -175,22 +171,22 @@ class BaseModel(object):
         return df
 
     @property
-    @_check_readiness
+    @_check()
     def _is_classification(self):
         return self._task_type >= Task('CLASSIFICATION')
 
     @property
-    @_check_readiness
+    @_check()
     def _is_binary_classification(self):
         return self._task_type == Task('BINARY_CLASSIFICATION')
 
     @property
-    @_check_readiness
+    @_check()
     def _is_multilabel_classification(self):
         return self._task_type == Task('MULTILABEL_CLASSIFICATION')
 
     @property
-    @_check_readiness
+    @_check()
     def _is_regression(self):
         return self._task_type == Task('REGRESSION')
 
@@ -229,7 +225,7 @@ class BaseModel(object):
         return self._is_ready
 
     @property
-    @_check_readiness
+    @_check()
     def metadata(self):
         """Get metadata of the model_name.
 
@@ -243,7 +239,7 @@ class BaseModel(object):
         """
         return self._metadata
 
-    @_check_readiness
+    @_check()
     def task_type(self, as_text=False):
         """Get task type of the model
 
@@ -262,7 +258,7 @@ class BaseModel(object):
         """
         return self._task_type.name if as_text else self._task_type
 
-    @_check_readiness
+    @_check()
     def features(self):
         """Get the features of the model
 
@@ -281,7 +277,7 @@ class BaseModel(object):
         return deepcopy(self.metadata['features'])
 
     @property
-    @_check_readiness
+    @_check()
     def info(self):
         """Get model information.
 
@@ -321,7 +317,8 @@ class BaseModel(object):
             'type': str(type(self._model)),
             'predictor_type': str(type(self._get_predictor())),
             'is_explainable': self._is_explainable,
-            'task': self.task_type(as_text=True)
+            'task': self.task_type(as_text=True),
+            'family': self.family
         }
         if self._is_classification:
             result['model']['class_names'] = self._get_class_names()

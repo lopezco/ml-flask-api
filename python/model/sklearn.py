@@ -2,7 +2,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from .base import  BaseModel, Task, _check_task, _check_readiness
+from .base import  BaseModel, Task, _check
 
 try:
     import shap
@@ -27,6 +27,8 @@ class SklearnModel(BaseModel):
             File path of the serialized model. It must be a file that can be
             loaded using :mod:`joblib`
     """
+    family = 'SKLEARN_MODEL'
+
     # Explainable models
     _explainable_models = (
         # Sklearn
@@ -45,12 +47,11 @@ class SklearnModel(BaseModel):
         loaded = joblib.load(self._file_name)
         self._hydrate(loaded['model'], loaded['metadata'])
 
-    @_check_readiness
+    @_check()
     def _get_predictor(self):
         return SklearnModel._extract_base_predictor(self._model)
 
-    @_check_readiness
-    @_check_task('classification')
+    @_check(task='classification')
     def _get_class_names(self):
         return np.array(self._get_predictor().classes_, str)
 
@@ -65,14 +66,15 @@ class SklearnModel(BaseModel):
         else:
             return model
 
-    @_check_readiness
-    def preprocess(self, input):
+    # Public
+    @_check()
+    def preprocess(self, features):
         """Preprocess data
 
         This function is used before prediction or interpretation.
 
         Args:
-            input (dict):
+            features (dict):
                 The expected object must contain one key per feature.
                 Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
@@ -84,12 +86,13 @@ class SklearnModel(BaseModel):
         Raises:
             RuntimeError: If the model is not ready.
         """
+        input = self._validate(features)
         if hasattr(self._model, 'transform'):
             return self._model.transform(input)
         else:
             return input
 
-    @_check_readiness
+    @_check()
     def predict(self, features):
         """Make a prediciton
 
@@ -114,8 +117,7 @@ class SklearnModel(BaseModel):
         result = self._model.predict(input)
         return result
 
-    @_check_readiness
-    @_check_task('classification')
+    @_check(task='classification')
     def predict_proba(self, features):
         """Make a prediciton
 
@@ -140,7 +142,7 @@ class SklearnModel(BaseModel):
         df = pd.DataFrame(prediction, columns=self._get_class_names())
         return df.to_dict(orient='records')
 
-    @_check_readiness
+    @_check(explainable=True)
     def explain(self, features, samples=None):
         """Explain the prediction of a model.
 
@@ -173,13 +175,8 @@ class SklearnModel(BaseModel):
                 explanations or the model is not already loaded.
                 Or if the explainer outputs an unknown object
         """
-        if not self._is_explainable:
-            model_name = type(self._model).__name__
-            msg = 'Model not supported for explanations: {}'.format(model_name)
-            raise ValueError(msg)
         # Process input
-        input = self._validate(features)
-        preprocessed = self.preprocess(input)
+        preprocessed = self.preprocess(features)
         # Define parameters
         if samples is None:
             params = {

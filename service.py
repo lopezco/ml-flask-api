@@ -11,7 +11,7 @@ import numpy as np
 
 from time import time
 
-from python.utils.encoder import NumpyEncoder, returns_json
+from python.utils.encoder import ExtendedEncoder, returns_json
 from python.factory import ModelFactory
 
 # Version of this APP template
@@ -26,7 +26,7 @@ SERVICE_START_TIMESTAMP = time()
 app = flask.Flask(__name__)
 # Customize Flask Application
 app.logger.setLevel(logging.DEBUG if DEBUG else logging.ERROR)
-app.json_encoder = NumpyEncoder
+app.json_encoder = ExtendedEncoder
 # Create Model instance
 model = ModelFactory.create_model(MODEL_NAME, MODEL_TYPE)
 # laod saved model
@@ -183,7 +183,7 @@ def service_info():
         'version-template': __version__,
         'running-since': SERVICE_START_TIMESTAMP,
         'serving-model-file': MODEL_NAME,
-        'serving-model-type': MODEL_TYPE,
+        'serving-model-family': model.family,
         'debug': DEBUG}
     return info
 
