@@ -2,10 +2,10 @@ version: '3'
 services:
   flask-ml:
     container_name: flask-ml-${VERSION}
-    build: .
+    build: ./docker/Dockerfile
     image: flask-ml:${VERSION}
     env_file:
-      - variables.env
+      - ./docker/variables.env
     restart: always
     ports:
       - "${PORT_EXTERNAL}:${PORT}"

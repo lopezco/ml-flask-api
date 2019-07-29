@@ -10,9 +10,9 @@ import logging
 import numpy as np
 
 from time import time
-from model import Model
-from functools import wraps
 
+from python.utils.encoder import NumpyEncoder, returns_json
+from python.factory import ModelFactory
 
 # Version of this APP template
 __version__ = '1.4.0'
@@ -20,58 +20,15 @@ __version__ = '1.4.0'
 DEBUG = os.environ.get('DEBUG', True)
 MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'local')
+MODEL_TYPE = os.environ.get('MODEL_TYPE', 'SKLEARN_MODEL')
 SERVICE_START_TIMESTAMP = time()
-
-
-class NumpyEncoder(flask.json.JSONEncoder):
-    """Encoder of numpy primitives into JSON strings"""
-    primitives = (np.ndarray, np.integer, np.inexact)
-
-    def default(self, obj):
-        if isinstance(obj, np.flexible):
-            return None if isinstance(obj, np.void) else obj.tolist()
-        elif isinstance(obj, self.primitives):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
-
-
-def returns_json(f):
-    """Wraps a function to transform the output into a JSON string with a
-    specific encoder"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        r = f(*args, **kwargs)
-        if isinstance(r, flask.Response):
-            return r
-        else:
-            return flask.Response(json.dumps(r, cls=NumpyEncoder), status=200,
-                                  mimetype='application/json; charset=utf-8')
-    return decorated_function
-
-
-def create_model_instance():
-    global MODEL_NAME
-    # Get current directory
-    base_dir = os.getcwd()
-    # Fix for documentation compilation
-    if os.path.basename(base_dir) == 'docsrc':
-        base_dir = os.path.dirname(base_dir)
-    # Check if there is a model in the directory with the expected name
-    model_path = os.path.join(base_dir, MODEL_NAME)
-    if not os.path.exists(model_path):
-        raise RuntimeError("Model {} not found".format(model_path))
-    else:
-        # Model found! now create an instance
-        return Model(model_path)
-
-
 # Create Flask Application
 app = flask.Flask(__name__)
 # Customize Flask Application
 app.logger.setLevel(logging.DEBUG if DEBUG else logging.ERROR)
 app.json_encoder = NumpyEncoder
 # Create Model instance
-model = create_model_instance()
+model = ModelFactory.create_model(MODEL_NAME, MODEL_TYPE)
 # laod saved model
 app.logger.info('ENVIRONMENT: {}'.format(ENVIRONMENT))
 app.logger.info('Using template version: {}'.format(__version__))
@@ -225,7 +182,8 @@ def service_info():
     info =  {
         'version-template': __version__,
         'running-since': SERVICE_START_TIMESTAMP,
-        'serving-model': MODEL_NAME,
+        'serving-model-file': MODEL_NAME,
+        'serving-model-type': MODEL_TYPE,
         'debug': DEBUG}
     return info
 

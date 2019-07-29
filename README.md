@@ -20,9 +20,9 @@ Make sure that you have a model in the main directory.
 You can launch the example using the following line in order to create a quick
 classification model.
 ```bash
-$ python example/build_linear_binary.py
+$ python ./python/example/build_linear_binary.py
 ```
-or one of the scripts in the `example` folder
+or one of the scripts in the `python/example` folder
 
 ### Configuration
 
@@ -138,7 +138,8 @@ $ curl -X GET http://localhost:5000/service-info
 {
   "debug": true,
   "running-since": 1563355369.6482198,
-  "serving-model": "model.joblib",
+  "serving-model-name": "model.joblib",
+  "serving-model-type": "SKLEARN_MODEL",
   "version-template": "1.4.0"
 }
 ```
