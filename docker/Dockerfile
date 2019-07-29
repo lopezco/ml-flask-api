@@ -5,7 +5,7 @@ ENV ENVIRONMENT local
 WORKDIR /usr/src/app
 
 # Copy and install service requirements
-COPY ./requirements-service.txt .
+COPY requirements-service.txt .
 RUN pip install -r ./requirements-service.txt
 
 # Copy model requirements

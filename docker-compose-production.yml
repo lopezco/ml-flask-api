@@ -2,7 +2,9 @@ version: '3'
 services:
   flask-ml:
     container_name: flask-ml-${VERSION}
-    build: ./docker/Dockerfile-production
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-production
     image: flask-ml:${VERSION}
     env_file:
       - ./docker/variables-production.env
