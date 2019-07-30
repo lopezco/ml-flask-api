@@ -1,7 +1,9 @@
+Machine Learning Model deployment
+=================================
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
+   :caption: Contents
 
    readme
    code_doc
