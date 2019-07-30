@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Scikit-learn Model &mdash; ML Model Deployment 2.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Service" href="service_api.html" />
+    <link rel="prev" title="Base Model" href="base_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ML Model Deployment
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Flask template for Machine Learning model deployment</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="code_doc.html">Code Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="base_model.html">Base Model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Scikit-learn Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="service_api.html">Service</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML Model Deployment</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="code_doc.html">Code Documentation</a> &raquo;</li>
+        
+      <li>Scikit-learn Model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/sklearn_model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-python.model.sklearn">
+<span id="scikit-learn-model"></span><h1>Scikit-learn Model<a class="headerlink" href="#module-python.model.sklearn" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="python.model.sklearn.SklearnModel">
+<em class="property">class </em><code class="sig-prename descclassname">python.model.sklearn.</code><code class="sig-name descname">SklearnModel</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/python/model/sklearn.html#SklearnModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#python.model.sklearn.SklearnModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="base_model.html#python.model.base.BaseModel" title="python.model.base.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">python.model.base.BaseModel</span></code></a></p>
+<p>Class that handles the loaded model.</p>
+<p>This class can handle models that respect the scikit-learn API. This
+includes <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html">sklearn.pipeline.Pipeline</a>.</p>
+<p>The data coming from a request if validated using the metadata setored with
+the model. The data fed to the <cite>predict</cite>, <cite>predict_proba</cite>, <cite>explain</cite> handle
+<cite>preprocess</cite> should be a dictionary that object must contain one key per
+feature or a list of such dictionaries (recors).
+Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – File path of the serialized model. It must be a file that can be
+loaded using <code class="xref py py-mod docutils literal notranslate"><span class="pre">joblib</span></code></p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="python.model.sklearn.SklearnModel.explain">
+<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/python/model/sklearn.html#SklearnModel.explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#python.model.sklearn.SklearnModel.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explain the prediction of a model.</p>
+<p>Explanation function that returns the SHAP value for each feture.
+The returned object contais one value per feature of the model.</p>
+<p>If <cite>samples</cite> is not given, then the explanations are the raw output of
+the trees, which varies by model (for binary classification in XGBoost
+this is the log odds ratio). On the contrary, if <cite>sample</cite> is given,
+then the explanations are the output of the model transformed into
+probability space (note that this means the SHAP values now sum to the
+probability output of the model).
+See the <a class="reference external" href="https://shap.readthedocs.io/en/latest/#shap.TreeExplainer">SHAP documentation</a> for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to explain the
+model. The expected object must contain one key per
+feature. Example:
+{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p></li>
+<li><p><strong>samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Records to be used as a sample pool for the
+explanations. It must have the same structure as <cite>features</cite>
+parameter. According to SHAP documentation, anywhere from 100
+to 1000 random background samples are good sizes to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Explanations.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the model’ predictor doesn’t support SHAP
+    explanations or the model is not already loaded.
+    Or if the explainer outputs an unknown object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="python.model.sklearn.SklearnModel.family">
+<code class="sig-name descname">family</code><em class="property"> = 'SKLEARN_MODEL'</em><a class="headerlink" href="#python.model.sklearn.SklearnModel.family" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="python.model.sklearn.SklearnModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/python/model/sklearn.html#SklearnModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#python.model.sklearn.SklearnModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a prediciton</p>
+<p>Prediction function that returns the predicted class. The returned value
+is an integer when the class names are not expecified in the model’s
+metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to make predictions. The
+expected object must contain one key per feature.
+Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="python.model.sklearn.SklearnModel.predict_proba">
+<code class="sig-name descname">predict_proba</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/python/model/sklearn.html#SklearnModel.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#python.model.sklearn.SklearnModel.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a prediciton</p>
+<p>Prediction function that returns the probability of the predicted
+classes. The returned object contais one value per class. The keys of
+the dictionary are the classes of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to make
+predictions. The expected object must contain one key per
+feature. Example:
+{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predicted class probabilities.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model isn’t ready or the task isn’t classification.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="python.model.sklearn.SklearnModel.preprocess">
+<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/python/model/sklearn.html#SklearnModel.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#python.model.sklearn.SklearnModel.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data</p>
+<p>This function is used before prediction or interpretation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The expected object must contain one key per feature.
+Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Processed data if a preprocessing function was definded in the
+model’s metadata. The format must be the same as the input.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="service_api.html" class="btn btn-neutral float-right" title="Service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="base_model.html" class="btn btn-neutral float-left" title="Base Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, lopezco
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

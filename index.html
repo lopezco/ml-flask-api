@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Flask template for Machine Learning model deployment &mdash; ML Model Deployment 1.4.0 documentation</title>
+  <title>&lt;no title&gt; &mdash; ML Model Deployment 2.0.0 documentation</title>
   
 
   
@@ -34,7 +34,8 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Flask template for Machine Learning model deployment" href="readme.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -58,7 +59,7 @@
             
             
               <div class="version">
-                1.4.0
+                2.0.0
               </div>
             
           
@@ -82,45 +83,12 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Flask template for Machine Learning model deployment</a><ul>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#requirements">Requirements</a></li>
-<li><a class="reference internal" href="#before-using">Before using</a></li>
-<li><a class="reference internal" href="#configuration">Configuration</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Flask template for Machine Learning model deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_doc.html">Code Documentation</a></li>
 </ul>
-</li>
-<li><a class="reference internal" href="#run-the-service">Run the service</a><ul>
-<li><a class="reference internal" href="#on-docker">On Docker</a><ul>
-<li><a class="reference internal" href="#development">Development</a></li>
-<li><a class="reference internal" href="#production">Production</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#on-local-python-environment">On local Python environment</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#usage-of-the-api">Usage of the API</a><ul>
-<li><a class="reference internal" href="#check-the-api-s-health-status">Check the API’s health status</a></li>
-<li><a class="reference internal" href="#is-model-ready">Is model ready?</a></li>
-<li><a class="reference internal" href="#get-information-about-service">Get information about service</a></li>
-<li><a class="reference internal" href="#get-information-about-the-model">Get information about the model</a></li>
-<li><a class="reference internal" href="#compute-predictions">Compute predictions</a></li>
-<li><a class="reference internal" href="#predict-probabilities">Predict probabilities</a></li>
-<li><a class="reference internal" href="#get-features-of-the-model-with-features-importances">Get features of the Model with features importances</a></li>
-<li><a class="reference internal" href="#get-shap-explanations">Get SHAP explanations</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#code-documentation">Code Documentation</a><ul>
-<li><a class="reference internal" href="#module-model">Model Class</a></li>
-<li><a class="reference internal" href="#module-service">Service</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-</div>
+
             
           
         </div>
@@ -164,7 +132,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Flask template for Machine Learning model deployment</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -184,611 +152,39 @@
            <div itemprop="articleBody">
             
   <div class="toctree-wrapper compound">
-</div>
-<div class="section" id="flask-template-for-machine-learning-model-deployment">
-<h1>Flask template for Machine Learning model deployment<a class="headerlink" href="#flask-template-for-machine-learning-model-deployment" title="Permalink to this headline">¶</a></h1>
-<p>A simple example of a Python web service for real time machine learning model deployment.
-It is based on <a class="reference external" href="https://mikulskibartosz.name/a-comprehensive-guide-to-putting-a-machine-learning-model-in-production-using-flask-docker-and-e3176aa8d1ce">this post</a></p>
-<p>This includes Docker integration and SHAP explanations for the deployed model.</p>
-<p><a class="reference external" href="https://lopezco.github.io/ml-flask-api">Website</a> | <a class="reference external" href="https://github.com/lopezco/ml-flask-api/">Source</a> | <a class="reference external" href="https://github.com/lopezco/ml-flask-api/issues">Issues</a></p>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="requirements">
-<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">docker</a></p></li>
-<li><p><a class="reference external" href="https://docs.docker.com/compose/install/">docker-compose</a> (Recommended)</p></li>
-</ul>
-</div>
-<div class="section" id="before-using">
-<h3>Before using<a class="headerlink" href="#before-using" title="Permalink to this headline">¶</a></h3>
-<p>Make sure that you have a model in the main directory.
-You can launch the example using the following line in order to create a quick
-classification model.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python example/build_linear_binary.py
-</pre></div>
-</div>
-<p>or one of the scripts in the <code class="docutils literal notranslate"><span class="pre">example</span></code> folder</p>
-</div>
-<div class="section" id="configuration">
-<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">variables.env</span></code>: Controls API parameters via environment variables</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>: Controls Python packages installed inside the container</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">model.joblib</span></code>: Model saved inside a dictionary with this format</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;model&quot;</span><span class="o">:</span> <span class="nx">trained_model</span><span class="p">,</span>
-    <span class="s2">&quot;metadata&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;features&quot;</span><span class="o">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">},</span>
-                              <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature2&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
-                              <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;feature3&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;numeric&quot;</span><span class="p">}]}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Flask template for Machine Learning model deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#before-using">Before using</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#run-the-service">Run the service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#on-docker">On Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#on-local-python-environment">On local Python environment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#usage-of-the-api">Usage of the API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#check-the-api-s-health-status">Check the API’s health status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#is-model-ready">Is model ready?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#get-information-about-service">Get information about service</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#get-information-about-the-model">Get information about the model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#compute-predictions">Compute predictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#predict-probabilities">Predict probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#get-features-of-the-model-with-features-importances">Get features of the Model with features importances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#get-shap-explanations">Get SHAP explanations</a></li>
+</ul>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="run-the-service">
-<h2>Run the service<a class="headerlink" href="#run-the-service" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="on-docker">
-<h3>On Docker<a class="headerlink" href="#on-docker" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="development">
-<h4>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h4>
-<p>Build the image (this has to be done every time the code or the model change)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose build
-</pre></div>
-</div>
-<p>Create and run the container</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose up
-</pre></div>
-</div>
-</div>
-<div class="section" id="production">
-<h4>Production<a class="headerlink" href="#production" title="Permalink to this headline">¶</a></h4>
-<p>Using uWSGI and nginx for production.</p>
-<p>Build the image (this has to be done every time the code or the model change)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose -f docker-compose-production.yml build
-</pre></div>
-</div>
-<p>Create and run the container</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose -f docker-compose-production.yml up
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="on-local-python-environment">
-<h3>On local Python environment<a class="headerlink" href="#on-local-python-environment" title="Permalink to this headline">¶</a></h3>
-<p>Create the environment</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create -n flask_ml_template <span class="nv">python</span><span class="o">=</span><span class="m">3</span>
-$ conda activate flask_ml_template
-</pre></div>
-</div>
-<p>Install requirements</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install -r ./requirements-service.txt
-$ pip install -r ./requirements.txt
-</pre></div>
-</div>
-<p>Run the API service</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python service.py
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="usage-of-the-api">
-<h2>Usage of the API<a class="headerlink" href="#usage-of-the-api" title="Permalink to this headline">¶</a></h2>
-<p>This example considers that the API was launched with the default parameters
-(<code class="docutils literal notranslate"><span class="pre">localhost</span></code> at port <code class="docutils literal notranslate"><span class="pre">5000</span></code>) and its calling the example model.</p>
-<p>For <code class="docutils literal notranslate"><span class="pre">/predict</span></code> endpoint the JSON string in the payload of hte request can take
-two forms:</p>
-<ol class="arabic simple">
-<li><p>The first, the payload is a record or a list of records with one value
-per feature. This will be directly interpreted as the input for the
-model.</p></li>
-<li><p>The second, the payload is a dictionary with 1 or 2 elements. The key
-<code class="docutils literal notranslate"><span class="pre">_data</span></code> is mandatory because this will be the input for the model and
-its format is expected to be a record or a list of records. On the
-other hand, the key <code class="docutils literal notranslate"><span class="pre">_samples</span></code> (optional) will be used to obtain
-different explanations.</p></li>
-</ol>
-<p>If <code class="docutils literal notranslate"><span class="pre">_samples</span></code> is not given, then the explanations returned are the raw output of
-the trees, which varies by model (for binary classification in XGBoost
-this is the log odds ratio). On the contrary, if <code class="docutils literal notranslate"><span class="pre">_samples</span></code> is given,
-then the explanations are the output of the model transformed into
-probability space (note that this means the SHAP values now sum to the
-probability output of the model).
-See the <a class="reference external" href="https://shap.readthedocs.io/en/latest/#shap.TreeExplainer">SHAP documentation</a>
-for details.</p>
-<div class="section" id="check-the-api-s-health-status">
-<h3>Check the API’s health status<a class="headerlink" href="#check-the-api-s-health-status" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/health</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/health
-up
-</pre></div>
-</div>
-</div>
-<div class="section" id="is-model-ready">
-<h3>Is model ready?<a class="headerlink" href="#is-model-ready" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/ready</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/ready
-ready
-</pre></div>
-</div>
-</div>
-<div class="section" id="get-information-about-service">
-<h3>Get information about service<a class="headerlink" href="#get-information-about-service" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/service-info</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/service-info
-<span class="o">{</span>
-  <span class="s2">&quot;debug&quot;</span>: true,
-  <span class="s2">&quot;running-since&quot;</span>: <span class="m">1563355369</span>.6482198,
-  <span class="s2">&quot;serving-model&quot;</span>: <span class="s2">&quot;model.joblib&quot;</span>,
-  <span class="s2">&quot;version-template&quot;</span>: <span class="s2">&quot;1.4.0&quot;</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="get-information-about-the-model">
-<h3>Get information about the model<a class="headerlink" href="#get-information-about-the-model" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/info</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET http://localhost:5000/info
-<span class="o">{</span>
-  <span class="s2">&quot;metadata&quot;</span>: <span class="o">{</span>
-    <span class="s2">&quot;features&quot;</span>: <span class="o">[</span>
-      <span class="o">{</span>
-        <span class="s2">&quot;default&quot;</span>: -1,
-        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.2,
-        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature1&quot;</span>,
-        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
-      <span class="o">}</span>,
-      <span class="o">{</span>
-        <span class="s2">&quot;default&quot;</span>: -1,
-        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.1,
-        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature2&quot;</span>,
-        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
-      <span class="o">}</span>,
-      <span class="o">{</span>
-        <span class="s2">&quot;default&quot;</span>: -1,
-        <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.3,
-        <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature3&quot;</span>,
-        <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
-      <span class="o">}</span>
-    <span class="o">]</span>
-  <span class="o">}</span>,
-  <span class="s2">&quot;model&quot;</span>: <span class="o">{</span>
-    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;&lt;class &#39;sklearn.ensemble.forest.RandomForestClassifier&#39;&gt;&quot;</span>,
-    <span class="s2">&quot;predictor_type&quot;</span>: <span class="s2">&quot;&lt;class &#39;sklearn.ensemble.forest.RandomForestClassifier&#39;&gt;&quot;</span>,
-    <span class="s2">&quot;is_explainable&quot;</span>: false,
-    <span class="s2">&quot;task&quot;</span>: <span class="s2">&quot;BINARY_CLASSIFICATION&quot;</span>,
-    <span class="s2">&quot;class_names&quot;</span>: <span class="o">[</span><span class="s2">&quot;0&quot;</span>, <span class="s2">&quot;1&quot;</span><span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="compute-predictions">
-<h3>Compute predictions<a class="headerlink" href="#compute-predictions" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -d <span class="s1">&#39;[{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}, {&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}]&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST http://localhost:5000/predict
-<span class="o">{</span>
-  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[</span><span class="m">0</span>, <span class="m">0</span><span class="o">]</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="predict-probabilities">
-<h3>Predict probabilities<a class="headerlink" href="#predict-probabilities" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict?proba=1</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -d <span class="s1">&#39;{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST <span class="s2">&quot;http://localhost:5000/predict?proba=1&quot;</span>
-<span class="o">{</span>
-  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[{</span>
-    <span class="s2">&quot;0&quot;</span>: <span class="m">0</span>.8,
-    <span class="s2">&quot;1&quot;</span>: <span class="m">0</span>.2
-  <span class="o">}]</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="get-features-of-the-model-with-features-importances">
-<h3>Get features of the Model with features importances<a class="headerlink" href="#get-features-of-the-model-with-features-importances" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/features</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X GET <span class="s2">&quot;http://localhost:5000/features&quot;</span>
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">&quot;default&quot;</span>: -1,
-    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.2,
-    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature1&quot;</span>,
-    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">&quot;default&quot;</span>: -1,
-    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.1,
-    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature2&quot;</span>,
-    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">&quot;default&quot;</span>: -1,
-    <span class="s2">&quot;importance&quot;</span>: <span class="m">0</span>.3,
-    <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;feature3&quot;</span>,
-    <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;numeric&quot;</span>
-  <span class="o">}</span>
-<span class="o">]</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="get-shap-explanations">
-<h3>Get SHAP explanations<a class="headerlink" href="#get-shap-explanations" title="Permalink to this headline">¶</a></h3>
-<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">/predict?proba=1&amp;explain=1</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">$curl</span> -d <span class="s1">&#39;{&quot;feature1&quot;: 1, &quot;feature2&quot;: 1, &quot;feature3&quot;: 2}&#39;</span> -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -X POST <span class="s2">&quot;http://localhost:5000/predict?proba=1&amp;explain=1&quot;</span>
-<span class="o">{</span>
-  <span class="s2">&quot;explanation&quot;</span>: <span class="o">{</span>
-    <span class="s2">&quot;feature1&quot;</span>: <span class="m">0</span>.10000000149011613,
-    <span class="s2">&quot;feature2&quot;</span>: <span class="m">0</span>.03333333383003871,
-    <span class="s2">&quot;feature3&quot;</span>: -0.1666666691501935
-  <span class="o">}</span>,
-  <span class="s2">&quot;prediction&quot;</span>: <span class="o">[{</span>
-    <span class="s2">&quot;0&quot;</span>: <span class="m">0</span>.7,
-    <span class="s2">&quot;1&quot;</span>: <span class="m">0</span>.3
-  <span class="o">}]</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="section" id="code-documentation">
-<h1>Code Documentation<a class="headerlink" href="#code-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-model">
-<span id="model-class"></span><h2>Model Class<a class="headerlink" href="#module-model" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="model.Model">
-<em class="property">class </em><code class="sig-prename descclassname">model.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Class that handles the loaded model.</p>
-<p>This class can handle models that respect the scikit-learn API. This
-includes <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html">sklearn.pipeline.Pipeline</a>.</p>
-<p>The data coming from a request if validated using the metadata setored with
-the model. The data fed to the <cite>predict</cite>, <cite>predict_proba</cite>, <cite>explain</cite> handle
-<cite>preprocess</cite> should be a dictionary that object must contain one key per
-feature or a list of such dictionaries (recors).
-Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – File path of the serialized model. It must be a file that can be
-loaded using <code class="xref py py-mod docutils literal notranslate"><span class="pre">joblib</span></code></p>
-</dd>
-</dl>
-<dl class="method">
-<dt id="model.Model.explain">
-<code class="sig-name descname">explain</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.explain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.explain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Explain the prediction of a model.</p>
-<p>Explanation function that returns the SHAP value for each feture.
-The returned object contais one value per feature of the model.</p>
-<p>If <cite>samples</cite> is not given, then the explanations are the raw output of
-the trees, which varies by model (for binary classification in XGBoost
-this is the log odds ratio). On the contrary, if <cite>sample</cite> is given,
-then the explanations are the output of the model transformed into
-probability space (note that this means the SHAP values now sum to the
-probability output of the model).
-See the <a class="reference external" href="https://shap.readthedocs.io/en/latest/#shap.TreeExplainer">SHAP documentation</a> for details.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to explain the
-model. The expected object must contain one key per
-feature. Example:
-{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p></li>
-<li><p><strong>samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Records to be used as a sample pool for the
-explanations. It must have the same structure as <cite>features</cite>
-parameter. According to SHAP documentation, anywhere from 100
-to 1000 random background samples are good sizes to use.</p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_doc.html">Code Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="base_model.html">Base Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sklearn_model.html">Scikit-learn Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="service_api.html">Service</a></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Explanations.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the model’ predictor doesn’t support SHAP
-    explanations or the model is not already loaded.
-    Or if the explainer outputs an unknown object</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.features">
-<code class="sig-name descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the features of the model</p>
-<p>The returned list contains records. Each record contais (at least)
-the <cite>name</cite> and <cite>type</cite> of the variable. If the model supports
-feature importances calculation (if the clasifier has
-<cite>feature_importances_</cite> atribute), they will also be present.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Model features.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>]</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.info">
-<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#model.Model.info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get model information.</p>
-<p>This function gives complete description of the model.
-The returned ibject contais the following keys:</p>
-<blockquote>
-<div><p>metadata (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>): Model metadata (see <a class="reference internal" href="#model.Model.metadata" title="model.Model.metadata"><code class="xref py py-func docutils literal notranslate"><span class="pre">metadata()</span></code></a>).</p>
-<dl class="simple">
-<dt>model (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>): Context information of the learnt model.</dt><dd><dl class="simple">
-<dt>type (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>):</dt><dd><p>Type of the underlying model object.</p>
-</dd>
-<dt>predictor_type (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>):</dt><dd><p>It could be the same as ‘type’. However, for
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html">sklearn.pipeline.Pipeline</a>
-it will output the class of the predictor inside it.</p>
-</dd>
-<dt>is_explainable (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>):</dt><dd><p><cite>True</cite> if the model class allows SHAP explanations to be
-computed.</p>
-</dd>
-<dt>task (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>):</dt><dd><p>Task type. Either ‘BINARY_CLASSIFICATION’,
-‘MULTILABEL_CLASSIFICATION’ or ‘REGRESSION’</p>
-</dd>
-<dt>class_names (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">None</span></code>):</dt><dd><p>Class names if defined (for classification only).</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Information about the model.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.is_ready">
-<code class="sig-name descname">is_ready</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.is_ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.is_ready" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if model is already loaded.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Is the model already loaded and ready for predictions?</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Launch model loading in a separated thread</p>
-<p>Once it finishes, the instance <cite>_is_ready</cite> parameter is set to <cite>True</cite>.</p>
-<p>The loaded object is expected to be a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing the
-following keys: <cite>model</cite> (model object) and <cite>metadata</cite> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>).
-The later contains one or two elements: <cite>features</cite>
-(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) with at least the <cite>name</cite> and <cite>type</cite> of
-the variables and optional <cite>class_names</cite> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>)
-with the list of class-names in order (for classification).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.metadata">
-<em class="property">property </em><code class="sig-name descname">metadata</code><a class="headerlink" href="#model.Model.metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get metadata of the model_name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Metadata of the model containing information about the features
-and classes (optional)</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a prediciton</p>
-<p>Prediction function that returns the predicted class. The returned value
-is an integer when the class names are not expecified in the model’s
-metadata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to make predictions. The
-expected object must contain one key per feature.
-Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Predicted class.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.predict_proba">
-<code class="sig-name descname">predict_proba</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a prediciton</p>
-<p>Prediction function that returns the probability of the predicted
-classes. The returned object contais one value per class. The keys of
-the dictionary are the classes of the model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>features</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Record to be used as input data to make
-predictions. The expected object must contain one key per
-feature. Example:
-{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Predicted class probabilities.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model isn’t ready or the task isn’t classification.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.preprocess">
-<code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><em class="sig-param">input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.preprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Preprocess data</p>
-<p>This function is used before prediction or interpretation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The expected object must contain one key per feature.
-Example: <cite>{‘feature1’: 5, ‘feature2’: ‘A’, ‘feature3’: 10}</cite></p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Processed data if a preprocessing function was definded in the
-model’s metadata. The format must be the same as the input.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="model.Model.task_type">
-<code class="sig-name descname">task_type</code><span class="sig-paren">(</span><em class="sig-param">as_text=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/model.html#Model.task_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#model.Model.task_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get task type of the model</p>
-<p>Either ‘REGRESSION’, ‘CLASSIFICATION’, ‘BINARY_CLASSIFICATION’ or
-‘MULTILABEL_CLASSIFICATION’.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>If <cite>as_text=False</cite>, returns the task of the model
-(classification, regression, etc.) as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> class
-instance. If <cite>as_text=True</cite>, returns the task of the model as
-text.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Task</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the model is not ready.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-service">
-<span id="service"></span><h2>Service<a class="headerlink" href="#module-service" title="Permalink to this headline">¶</a></h2>
-<p>Flask application to serve Machine Learning models</p>
-<dl class="function">
-<dt id="service.features">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model features</p>
-<p>Get the model accepted features. This includes feature inportance if the
-model allows it.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="service.health_check">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">health_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#health_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.health_check" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="service.info">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model information</p>
-<p>Get the model information: metadata, type, classifier, etc.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="service.predict">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">predict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make preditcions and explain them</p>
-<p>Model inference using input data. This is the main function.</p>
-<dl>
-<dt>URL Params:</dt><dd><dl class="simple">
-<dt>proba (int):</dt><dd><p>1 in order to compute probabilities for classification models or 0
-to return predicted class (classification) or value (regression).
-Default 0.</p>
-</dd>
-<dt>explain (int):</dt><dd><p>1 in order to compute moeldel explanations for the predicted value.
-This will return a status 500 when the model does not support
-explanations. Default 0.</p>
-</dd>
-</dl>
-</dd>
-<dt>Payload:</dt><dd><p>JSON string that can take two forms:</p>
-<p>The first, the payload is a record or a list of records with one value
-per feature. This will be directly interpreted as the input for the
-model.</p>
-<p>The second, the payload is a dictionary with 1 or 2 elements. The key
-“_data” is mandatory because this will be the input for the model and
-its format is expected to be a record or a list of records. On the
-other hand the key “_samples” (optional) will be used to obtain
-different explanations (see <a class="reference internal" href="#model.Model.explain" title="model.Model.explain"><code class="xref py py-func docutils literal notranslate"><span class="pre">explain()</span></code></a>)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="service.preprocess">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.preprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Preporcess input data</p>
-<p>Get the preprocessed version of the input data. If the model does not
-include preprocessing steps, this method will return the same data as the
-input.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="service.readiness_check">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">readiness_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#readiness_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.readiness_check" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="service.service_info">
-<code class="sig-prename descclassname">service.</code><code class="sig-name descname">service_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/service.html#service_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.service_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Service information</p>
-<p>Get information about the service: up-time, varsion of the template, name
-of the served model, etc.</p>
-</dd></dl>
-
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</li>
 </ul>
 </div>
 
@@ -797,6 +193,13 @@ of the served model, etc.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="readme.html" class="btn btn-neutral float-right" title="Flask template for Machine Learning model deployment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
   
 
   <hr/>

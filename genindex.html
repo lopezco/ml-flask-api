@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; ML Model Deployment 1.4.0 documentation</title>
+  <title>Index &mdash; ML Model Deployment 2.0.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.4.0
+                2.0.0
               </div>
             
           
@@ -83,8 +83,12 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Flask template for Machine Learning model deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_doc.html">Code Documentation</a></li>
+</ul>
+
             
           
         </div>
@@ -149,7 +153,8 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#E"><strong>E</strong></a>
+ <a href="#B"><strong>B</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -161,21 +166,41 @@
  | <a href="#T"><strong>T</strong></a>
  
 </div>
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="base_model.html#python.model.base.BaseModel">BaseModel (class in python.model.base)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model.explain">explain() (model.Model method)</a>
+      <li><a href="base_model.html#python.model.base.BaseModel.explain">explain() (python.model.base.BaseModel method)</a>
+
+      <ul>
+        <li><a href="sklearn_model.html#python.model.sklearn.SklearnModel.explain">(python.model.sklearn.SklearnModel method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#service.features">features() (in module service)</a>
+      <li><a href="base_model.html#python.model.base.BaseModel.family">family (python.model.base.BaseModel attribute)</a>
 
       <ul>
-        <li><a href="index.html#model.Model.features">(model.Model method)</a>
+        <li><a href="sklearn_model.html#python.model.sklearn.SklearnModel.family">(python.model.sklearn.SklearnModel attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="service_api.html#service.features">features() (in module service)</a>
+
+      <ul>
+        <li><a href="base_model.html#python.model.base.BaseModel.features">(python.model.base.BaseModel method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -184,7 +209,7 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#service.health_check">health_check() (in module service)</a>
+      <li><a href="service_api.html#service.health_check">health_check() (in module service)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -192,15 +217,15 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#service.info">info() (in module service)</a>
+      <li><a href="service_api.html#service.info">info() (in module service)</a>
 
       <ul>
-        <li><a href="index.html#model.Model.info">(model.Model property)</a>
+        <li><a href="base_model.html#python.model.base.BaseModel.info">(python.model.base.BaseModel property)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model.is_ready">is_ready() (model.Model method)</a>
+      <li><a href="base_model.html#python.model.base.BaseModel.is_ready">is_ready() (python.model.base.BaseModel method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -208,7 +233,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model.load">load() (model.Model method)</a>
+      <li><a href="base_model.html#python.model.base.BaseModel.load">load() (python.model.base.BaseModel method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -216,13 +241,7 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model.metadata">metadata() (model.Model property)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model">Model (class in model)</a>
-</li>
-      <li><a href="index.html#module-model">model (module)</a>
+      <li><a href="base_model.html#python.model.base.BaseModel.metadata">metadata() (python.model.base.BaseModel property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -230,29 +249,41 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#service.predict">predict() (in module service)</a>
+      <li><a href="service_api.html#service.predict">predict() (in module service)</a>
 
       <ul>
-        <li><a href="index.html#model.Model.predict">(model.Model method)</a>
+        <li><a href="base_model.html#python.model.base.BaseModel.predict">(python.model.base.BaseModel method)</a>
+</li>
+        <li><a href="sklearn_model.html#python.model.sklearn.SklearnModel.predict">(python.model.sklearn.SklearnModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="base_model.html#python.model.base.BaseModel.predict_proba">predict_proba() (python.model.base.BaseModel method)</a>
+
+      <ul>
+        <li><a href="sklearn_model.html#python.model.sklearn.SklearnModel.predict_proba">(python.model.sklearn.SklearnModel method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model.predict_proba">predict_proba() (model.Model method)</a>
-</li>
-      <li><a href="index.html#service.preprocess">preprocess() (in module service)</a>
+      <li><a href="service_api.html#service.preprocess">preprocess() (in module service)</a>
 
       <ul>
-        <li><a href="index.html#model.Model.preprocess">(model.Model method)</a>
+        <li><a href="base_model.html#python.model.base.BaseModel.preprocess">(python.model.base.BaseModel method)</a>
+</li>
+        <li><a href="sklearn_model.html#python.model.sklearn.SklearnModel.preprocess">(python.model.sklearn.SklearnModel method)</a>
 </li>
       </ul></li>
+      <li><a href="base_model.html#module-python.model.base">python.model.base (module)</a>
+</li>
+      <li><a href="sklearn_model.html#module-python.model.sklearn">python.model.sklearn (module)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#service.readiness_check">readiness_check() (in module service)</a>
+      <li><a href="service_api.html#service.readiness_check">readiness_check() (in module service)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -260,11 +291,13 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#module-service">service (module)</a>
+      <li><a href="service_api.html#module-service">service (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#service.service_info">service_info() (in module service)</a>
+      <li><a href="service_api.html#service.service_info">service_info() (in module service)</a>
+</li>
+      <li><a href="sklearn_model.html#python.model.sklearn.SklearnModel">SklearnModel (class in python.model.sklearn)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -272,7 +305,7 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#model.Model.task_type">task_type() (model.Model method)</a>
+      <li><a href="base_model.html#python.model.base.BaseModel.task_type">task_type() (python.model.base.BaseModel method)</a>
 </li>
   </ul></td>
 </tr></table>

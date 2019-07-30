@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>python.model.sklearn &mdash; ML Model Deployment 2.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ML Model Deployment
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Flask template for Machine Learning model deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_doc.html">Code Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML Model Deployment</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>python.model.sklearn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for python.model.sklearn</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span>  <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">_check</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">shap</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="SklearnModel"><a class="viewcode-back" href="../../../sklearn_model.html#python.model.sklearn.SklearnModel">[docs]</a><span class="k">class</span> <span class="nc">SklearnModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class that handles the loaded model.</span>
+
+<span class="sd">    This class can handle models that respect the scikit-learn API. This</span>
+<span class="sd">    includes `sklearn.pipeline.Pipeline &lt;https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html&gt;`_.</span>
+
+<span class="sd">    The data coming from a request if validated using the metadata setored with</span>
+<span class="sd">    the model. The data fed to the `predict`, `predict_proba`, `explain` handle</span>
+<span class="sd">    `preprocess` should be a dictionary that object must contain one key per</span>
+<span class="sd">    feature or a list of such dictionaries (recors).</span>
+<span class="sd">    Example: `{&#39;feature1&#39;: 5, &#39;feature2&#39;: &#39;A&#39;, &#39;feature3&#39;: 10}`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_name (str):</span>
+<span class="sd">            File path of the serialized model. It must be a file that can be</span>
+<span class="sd">            loaded using :mod:`joblib`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">family</span> <span class="o">=</span> <span class="s1">&#39;SKLEARN_MODEL&#39;</span>
+
+    <span class="c1"># Explainable models</span>
+    <span class="n">_explainable_models</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="c1"># Sklearn</span>
+        <span class="s1">&#39;DecisionTreeClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;DecisionTreeRegressor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;RandomForestClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;RandomForestRegressor&#39;</span><span class="p">,</span>
+        <span class="c1"># XGBoost</span>
+        <span class="s1">&#39;XGBClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;XGBRegressor&#39;</span><span class="p">,</span> <span class="s1">&#39;Booster&#39;</span><span class="p">,</span>
+        <span class="c1"># CatBoost</span>
+        <span class="s1">&#39;CatBoostClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;CatBoostRegressor&#39;</span><span class="p">,</span>
+        <span class="c1"># LightGBM</span>
+        <span class="s1">&#39;LGBMClassifier&#39;</span><span class="p">,</span> <span class="s1">&#39;LGBMRegressor&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Private</span>
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Load serialized model (dict expected)</span>
+        <span class="n">loaded</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hydrate</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])</span>
+
+    <span class="nd">@_check</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_get_predictor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SklearnModel</span><span class="o">.</span><span class="n">_extract_base_predictor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
+
+    <span class="nd">@_check</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;classification&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get_class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_predictor</span><span class="p">()</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Private (static)</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_extract_base_predictor</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;Pipeline&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SklearnModel</span><span class="o">.</span><span class="n">_extract_base_predictor</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="s1">&#39;CalibratedClassifier&#39;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SklearnModel</span><span class="o">.</span><span class="n">_extract_base_predictor</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">base_estimator</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model</span>
+
+    <span class="c1"># Public</span>
+<div class="viewcode-block" id="SklearnModel.preprocess"><a class="viewcode-back" href="../../../sklearn_model.html#python.model.sklearn.SklearnModel.preprocess">[docs]</a>    <span class="nd">@_check</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Preprocess data</span>
+
+<span class="sd">        This function is used before prediction or interpretation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features (dict):</span>
+<span class="sd">                The expected object must contain one key per feature.</span>
+<span class="sd">                Example: `{&#39;feature1&#39;: 5, &#39;feature2&#39;: &#39;A&#39;, &#39;feature3&#39;: 10}`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                Processed data if a preprocessing function was definded in the</span>
+<span class="sd">                model&#39;s metadata. The format must be the same as the input.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the model is not ready.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">input</span></div>
+
+<div class="viewcode-block" id="SklearnModel.predict"><a class="viewcode-back" href="../../../sklearn_model.html#python.model.sklearn.SklearnModel.predict">[docs]</a>    <span class="nd">@_check</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a prediciton</span>
+
+<span class="sd">        Prediction function that returns the predicted class. The returned value</span>
+<span class="sd">        is an integer when the class names are not expecified in the model&#39;s</span>
+<span class="sd">        metadata.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features (dict):</span>
+<span class="sd">                Record to be used as input data to make predictions. The</span>
+<span class="sd">                expected object must contain one key per feature.</span>
+<span class="sd">                Example: `{&#39;feature1&#39;: 5, &#39;feature2&#39;: &#39;A&#39;, &#39;feature3&#39;: 10}`</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int or str:</span>
+<span class="sd">                Predicted class.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the model is not ready.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="SklearnModel.predict_proba"><a class="viewcode-back" href="../../../sklearn_model.html#python.model.sklearn.SklearnModel.predict_proba">[docs]</a>    <span class="nd">@_check</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s1">&#39;classification&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a prediciton</span>
+
+<span class="sd">        Prediction function that returns the probability of the predicted</span>
+<span class="sd">        classes. The returned object contais one value per class. The keys of</span>
+<span class="sd">        the dictionary are the classes of the model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features (dict): Record to be used as input data to make</span>
+<span class="sd">                predictions. The expected object must contain one key per</span>
+<span class="sd">                feature. Example:</span>
+<span class="sd">                {&#39;feature1&#39;: 5, &#39;feature2&#39;: &#39;A&#39;, &#39;feature3&#39;: 10}</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Predicted class probabilities.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the model isn&#39;t ready or the task isn&#39;t classification.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SklearnModel.explain"><a class="viewcode-back" href="../../../sklearn_model.html#python.model.sklearn.SklearnModel.explain">[docs]</a>    <span class="nd">@_check</span><span class="p">(</span><span class="n">explainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Explain the prediction of a model.</span>
+
+<span class="sd">        Explanation function that returns the SHAP value for each feture.</span>
+<span class="sd">        The returned object contais one value per feature of the model.</span>
+
+<span class="sd">        If `samples` is not given, then the explanations are the raw output of</span>
+<span class="sd">        the trees, which varies by model (for binary classification in XGBoost</span>
+<span class="sd">        this is the log odds ratio). On the contrary, if `sample` is given,</span>
+<span class="sd">        then the explanations are the output of the model transformed into</span>
+<span class="sd">        probability space (note that this means the SHAP values now sum to the</span>
+<span class="sd">        probability output of the model).</span>
+<span class="sd">        See the `SHAP documentation &lt;https://shap.readthedocs.io/en/latest/#shap.TreeExplainer&gt;`_ for details.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            features (dict): Record to be used as input data to explain the</span>
+<span class="sd">                model. The expected object must contain one key per</span>
+<span class="sd">                feature. Example:</span>
+<span class="sd">                {&#39;feature1&#39;: 5, &#39;feature2&#39;: &#39;A&#39;, &#39;feature3&#39;: 10}</span>
+<span class="sd">            samples (dict): Records to be used as a sample pool for the</span>
+<span class="sd">                explanations. It must have the same structure as `features`</span>
+<span class="sd">                parameter. According to SHAP documentation, anywhere from 100</span>
+<span class="sd">                to 1000 random background samples are good sizes to use.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Explanations.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the model is not ready.</span>
+<span class="sd">            ValueError: If the model&#39; predictor doesn&#39;t support SHAP</span>
+<span class="sd">                explanations or the model is not already loaded.</span>
+<span class="sd">                Or if the explainer outputs an unknown object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Process input</span>
+        <span class="n">preprocessed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="c1"># Define parameters</span>
+        <span class="k">if</span> <span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;feature_dependence&#39;</span><span class="p">:</span> <span class="s1">&#39;tree_path_dependent&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;model_output&#39;</span><span class="p">:</span> <span class="s1">&#39;margin&#39;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">samples</span><span class="p">)),</span>
+                <span class="s1">&#39;feature_dependence&#39;</span><span class="p">:</span> <span class="s1">&#39;independent&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;model_output&#39;</span><span class="p">:</span> <span class="s1">&#39;probability&#39;</span><span class="p">}</span>
+        <span class="c1"># Explainer</span>
+        <span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">TreeExplainer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_predictor</span><span class="p">(),</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">colnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span><span class="p">()</span>
+        <span class="n">shap_values</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">shap_values</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">[</span><span class="n">colnames</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="c1"># Create an index to handle multiple samples input</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">preprocessed</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_classification</span><span class="p">:</span>
+            <span class="n">class_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_names</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># The result is one set of explanations per target class</span>
+                <span class="n">process_shap_values</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_binary_classification</span><span class="p">:</span>
+                <span class="c1"># The result is one ndarray set of explanations for one class</span>
+                <span class="c1"># Expected only for binary classification for some models.</span>
+                <span class="c1"># Ex: LGBMClassifier</span>
+                <span class="n">process_shap_values</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown objet class for shap_values variable&#39;</span><span class="p">)</span>
+            <span class="c1"># Format output</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_names</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">process_shap_values</span><span class="p">:</span>
+                    <span class="n">_values</span> <span class="o">=</span> <span class="n">shap_values</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_values</span> <span class="o">=</span> <span class="n">shap_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">_values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+                                         <span class="n">columns</span><span class="o">=</span><span class="n">colnames</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># self._is_regression</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+                                  <span class="n">columns</span><span class="o">=</span><span class="n">colnames</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, lopezco
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
