@@ -163,9 +163,12 @@ class BaseModel(object):
                     var_type = float
                 elif var_type == 'string':
                     var_type = str
-                elif (var_type == 'category') and (categories is not None):
-                    var_type = CategoricalDtype(categories=categories,
-                                                ordered=True)
+                elif var_type == 'category':
+                    if categories is not None:
+                        var_type = CategoricalDtype(categories=categories, ordered=True)
+                    else:
+                        msg = 'Missing "categories" for "{}" in metadata'.format(name)
+                        raise ValueError(msg)
                 else:
                     msg = 'Unknown variable type: {}'.format(var_type)
                     raise ValueError(msg)
