@@ -190,7 +190,12 @@ class SklearnModel(BaseModel):
         # Explainer
         explainer = shap.TreeExplainer(self._get_predictor(), **params)
         colnames = self._feature_names()
-        shap_values = explainer.shap_values(preprocessed[colnames].values)
+        # This patch will ensure that the data will be fed as a pandas DataFrame
+        # instead of as a numpy array to some models. Ex: LightGBM
+        input_data = preprocessed[colnames]
+        predictor_type = self._get_predictor_type()
+        use_pandas = any(c in predictor_type for c in ('LGBMClassifier', 'LGBMRegressor'))
+        shap_values = explainer.shap_values(input_data if use_pandas else input_data.values)
 
         # Create an index to handle multiple samples input
         index = preprocessed.index

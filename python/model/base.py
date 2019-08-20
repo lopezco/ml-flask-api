@@ -111,6 +111,9 @@ class BaseModel(object):
         raise NotImplementedError()
 
     # Private
+    def _get_predictor_type(self):
+        return str(type(self._get_predictor()))
+
     def _hydrate(self, model, metadata):
         # Fill attributes
         self._model = model
@@ -329,7 +332,7 @@ class BaseModel(object):
         # Info from model
         result['model'] = {
             'type': str(type(self._model)),
-            'predictor_type': str(type(self._get_predictor())),
+            'predictor_type': self._get_predictor_type(),
             'is_explainable': self._is_explainable,
             'task': self.task_type(as_text=True),
             'family': self.family
