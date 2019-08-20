@@ -141,7 +141,7 @@ $ curl -X GET http://localhost:5000/service-info
   "running-since": 1563355369.6482198,
   "serving-model-name": "model.joblib",
   "serving-model-type": "SKLEARN_MODEL",
-  "version-template": "2.0.0"
+  "version-template": "2.1.0"
 }
 ```
 

@@ -15,7 +15,7 @@ from python.utils.encoder import ExtendedEncoder, returns_json
 from python.factory import ModelFactory
 
 # Version of this APP template
-__version__ = '2.0.0'
+__version__ = '2.1.0'
 # Read env variables
 DEBUG = os.environ.get('DEBUG', True)
 MODEL_NAME = os.environ.get('MODEL_NAME', 'model.joblib')
