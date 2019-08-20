@@ -168,7 +168,7 @@ class BaseModel(object):
                         var_type = CategoricalDtype(categories=categories, ordered=True)
                         new_cat = set(df[name].unique()).difference(categories)
                         if len(new_cat):
-                            msg = 'Unexpected categorical value in input data: {}'.format(new_cat)
+                            msg = 'Unexpected categorical value for {}: {}'.format(name, new_cat)
                             raise ValueError(msg)
                     else:
                         msg = 'Missing "categories" for "{}" in metadata'.format(name)
