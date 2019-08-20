@@ -33,9 +33,10 @@ or one of the scripts in the `python/example` folder
     ```javascript
     {
         "model": trained_model,
-        "metadata": {"features": [{"name": "feature1", "type": "numeric"},
-                                  {"name": "feature2", "type": "numeric", "default": -1},
-                                  {"name": "feature3", "type": "numeric"}]}
+        "metadata": {"features": [
+            {"name": "feature1", "type": "numeric"},
+            {"name": "feature2", "type": "numeric", "default": -1},
+            {"name": "feature3", "type": "category", "categories": ["A", "B"]}]}
     }
     ```
 
