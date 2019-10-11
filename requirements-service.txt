@@ -1,5 +1,6 @@
 # Web Service
 flask
+gunicorn
 
 # Model persistance and data handling
 numpy

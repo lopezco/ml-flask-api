@@ -1,6 +1,8 @@
 FROM python:3
 
-WORKDIR /usr/src/app
+WORKDIR /app
+
+RUN pip install --upgrade pip
 
 # Copy and install service requirements
 COPY requirements-service.txt .
@@ -13,5 +15,7 @@ RUN pip install -r ./requirements.txt
 # Copy code and model
 COPY . .
 
-ENTRYPOINT ["python"]
-CMD [ "./service.py" ]
+EXPOSE 5000
+
+CMD gunicorn -b 0.0.0.0:5000 service --timeout 300 --workers=2 --threads=4 --worker-class=gthread
+

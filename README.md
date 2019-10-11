@@ -44,28 +44,13 @@ or one of the scripts in the `./example` folder
 
 ### On Docker
 
-#### Development
-
-Build the image (this has to be done every time the code or the model change)
+Build the image (this has to be done every time the code or the model changes)
 ```bash
 $ docker-compose build
 ```
 Create and run the container
 ```bash
 $ docker-compose up
-```
-
-#### Production
-
-Using uWSGI and nginx for production.
-
-Build the image (this has to be done every time the code or the model change)
-```bash
-$ docker-compose -f docker-compose-production.yml build
-```
-Create and run the container
-```bash
-$ docker-compose -f docker-compose-production.yml up
 ```
 
 ### On local Python environment
@@ -137,6 +122,8 @@ Endpoint: `/service-info`
 
 ```bash
 $ curl -X GET http://localhost:5000/service-info
+```
+```json
 {
   "debug": true,
   "running-since": 1563355369.6482198,
@@ -152,6 +139,8 @@ Endpoint: `/info`
 
 ```bash
 $ curl -X GET http://localhost:5000/info
+```
+```json
 {
   "metadata": {
     "features": [
@@ -191,6 +180,8 @@ Endpoint: `/predict`
 
 ```bash
 $ curl -d '[{"feature1": 1, "feature2": 1, "feature3": 2}, {"feature1": 1, "feature2": 1, "feature3": 2}]' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
+```
+```json
 {
   "prediction": [0, 0]
 }
@@ -202,6 +193,8 @@ Endpoint: `/predict?proba=1`
 
 ```bash
 $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1"
+```
+```json
 {
   "prediction": [{
     "0": 0.8,
@@ -216,6 +209,8 @@ $ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: appl
 Endpoint: `/features`
 ```bash
 $ curl -X GET "http://localhost:5000/features"
+```
+```json
 [
   {
     "default": -1,
@@ -243,7 +238,9 @@ $ curl -X GET "http://localhost:5000/features"
 Endpoint: `/predict?proba=1&explain=1`
 
 ```bash
-$curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1&explain=1"
+$ curl -d '{"feature1": 1, "feature2": 1, "feature3": 2}' -H "Content-Type: application/json" -X POST "http://localhost:5000/predict?proba=1&explain=1"
+```
+```json
 {
   "explanation": {
     "feature1": 0.10000000149011613,

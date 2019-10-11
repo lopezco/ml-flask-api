@@ -10,4 +10,4 @@ services:
       - ./docker/.env
     restart: always
     ports:
-      - "33333:5000"
+      - "5000:5000"
