@@ -1,7 +1,5 @@
 FROM python:3
 
-ENV ENVIRONMENT local
-
 WORKDIR /usr/src/app
 
 # Copy and install service requirements

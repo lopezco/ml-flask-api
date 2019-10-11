@@ -1,4 +1,3 @@
-import joblib
 import numpy as np
 import pandas as pd
 
@@ -6,7 +5,6 @@ from pandas.api.types import CategoricalDtype
 from threading import Thread
 from copy import deepcopy
 from functools import wraps
-from enum import Enum
 
 
 try:
@@ -301,7 +299,7 @@ class BaseModel(object):
         This function gives complete description of the model.
         The returned ibject contais the following keys:
 
-            metadata (:class:`dict`): Model metadata (see :func:`~python.model.base.BaseModel.metadata`).
+            metadata (:class:`dict`): Model metadata (see :func:`~src.model.base.BaseModel.metadata`).
 
             model (:class:`dict`): Context information of the learnt model.
                 type (:class:`str`):

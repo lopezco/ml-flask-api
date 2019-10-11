@@ -1,18 +1,16 @@
-#!flask/bin/python
+#!flask/bin/src
 """
 Flask application to serve Machine Learning models
 """
 import os
 import flask
 import json
-import argparse
 import logging
-import numpy as np
 
 from time import time
 
-from python.utils.encoder import ExtendedEncoder, returns_json
-from python.factory import ModelFactory
+from src.utils.encoder import ExtendedEncoder, returns_json
+from src.factory import ModelFactory
 
 # Version of this APP template
 __version__ = '2.1.0'
@@ -23,20 +21,20 @@ ENVIRONMENT = os.environ.get('ENVIRONMENT', 'local')
 MODEL_TYPE = os.environ.get('MODEL_TYPE', 'SKLEARN_MODEL')
 SERVICE_START_TIMESTAMP = time()
 # Create Flask Application
-app = flask.Flask(__name__)
+application = flask.Flask(__name__)
 # Customize Flask Application
-app.logger.setLevel(logging.DEBUG if DEBUG else logging.ERROR)
-app.json_encoder = ExtendedEncoder
+application.logger.setLevel(logging.DEBUG if DEBUG else logging.ERROR)
+application.json_encoder = ExtendedEncoder
 # Create Model instance
 model = ModelFactory.create_model(MODEL_NAME, MODEL_TYPE)
-# laod saved model
-app.logger.info('ENVIRONMENT: {}'.format(ENVIRONMENT))
-app.logger.info('Using template version: {}'.format(__version__))
-app.logger.info('Loading model...')
+# load saved model
+application.logger.info('ENVIRONMENT: {}'.format(ENVIRONMENT))
+application.logger.info('Using template version: {}'.format(__version__))
+application.logger.info('Loading model...')
 model.load()
 
 
-@app.route('/predict', methods=['POST'])
+@application.route('/predict', methods=['POST'])
 @returns_json
 def predict():
     """Make preditcions and explain them
@@ -103,11 +101,11 @@ def predict():
         'model_info': model.info,
         'elapsed_time': after_time - before_time
     }
-    app.logger.debug(to_be_logged)
+    application.logger.debug(to_be_logged)
     return result
 
 
-@app.route('/info',  methods=['GET'])
+@application.route('/info', methods=['GET'])
 @returns_json
 def info():
     """Model information
@@ -123,7 +121,7 @@ def info():
         return info
 
 
-@app.route('/features',  methods=['GET'])
+@application.route('/features', methods=['GET'])
 @returns_json
 def features():
     """Model features
@@ -140,7 +138,7 @@ def features():
         return features
 
 
-@app.route('/preprocess',  methods=['POST'])
+@application.route('/preprocess', methods=['POST'])
 @returns_json
 def preprocess():
     """Preporcess input data
@@ -159,12 +157,12 @@ def preprocess():
         return data
 
 
-@app.route('/health')
+@application.route('/health')
 def health_check():
     return flask.Response("up", status=200)
 
 
-@app.route('/ready')
+@application.route('/ready')
 def readiness_check():
     if model.is_ready():
         return flask.Response("ready", status=200)
@@ -172,7 +170,7 @@ def readiness_check():
         return flask.Response("not ready", status=503)
 
 
-@app.route('/service-info')
+@application.route('/service-info')
 @returns_json
 def service_info():
     """Service information
@@ -181,17 +179,18 @@ def service_info():
     of the served model, etc.
 
     """
-    info =  {
+    info = {
         'version-template': __version__,
         'running-since': SERVICE_START_TIMESTAMP,
         'serving-model-file': MODEL_NAME,
         'serving-model-family': model.family,
-        'debug': DEBUG}
+        'debug': DEBUG
+    }
     return info
 
 
 if __name__ == '__main__':
-    app.run(
+    application.run(
         debug=DEBUG,
         host=os.environ.get('HOST', 'localhost'),
         port=os.environ.get('PORT', '5000'))

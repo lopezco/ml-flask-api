@@ -1,7 +1,5 @@
 FROM tiangolo/uwsgi-nginx-flask:python3.6
 
-ENV ENVIRONMENT production
-
 WORKDIR /app/
 
 # Copy and install service requirements
@@ -14,3 +12,5 @@ RUN pip install -r ./requirements.txt
 
 # Copy code and model
 COPY . .
+
+CMD gunicorn -b 0.0.0.0:5000 service --timeout 300

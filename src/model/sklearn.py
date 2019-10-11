@@ -2,7 +2,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from .base import  BaseModel, Task, _check
+from .base import BaseModel, _check
 
 try:
     import shap

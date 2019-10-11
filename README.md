@@ -20,9 +20,9 @@ Make sure that you have a model in the main directory.
 You can launch the example using the following line in order to create a quick
 classification model.
 ```bash
-$ python ./python/example/build_linear_binary.py
+$ python ./example/build_linear_binary.py
 ```
-or one of the scripts in the `python/example` folder
+or one of the scripts in the `./example` folder
 
 ### Configuration
 
@@ -72,8 +72,8 @@ $ docker-compose -f docker-compose-production.yml up
 
 Create the environment
 ```bash
-$ conda create -n flask_ml_template python=3
-$ conda activate flask_ml_template
+$ conda create -n flask_ml python=3
+$ conda activate flask_ml
 ```
 Install requirements
 ```bash
@@ -87,8 +87,9 @@ $ python service.py
 
 ## Usage of the API  
 
-This example considers that the API was launched with the default parameters
-(`localhost` at port `5000`) and its calling the example model.
+This example considers that the API was launched locally without docker and 
+with the default parameters (`localhost` at port `5000`) and its calling 
+the example model.
 
 For `/predict` endpoint the JSON string in the payload of hte request can take
 two forms:

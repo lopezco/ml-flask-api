@@ -19,8 +19,9 @@ def metadata_from_dataframe(df):
     metadata = []
     for c in df.columns:
         if is_categorical_dtype(df[c]):
-            tmp = {'name': c, 'type': 'category',
-                'categories': sorted(df[c].dtype.categories.values.tolist())})
+            tmp = {'name': c,
+                   'type': 'category',
+                   'categories': sorted(df[c].dtype.categories.values.tolist())}
         elif is_numeric_dtype(df[c]):
             tmp = {'name': c, 'type': 'numeric'}
         elif is_string_dtype(df[c]):
