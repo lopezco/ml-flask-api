@@ -56,7 +56,7 @@ class Task(int):
         self._id = int(self)
 
     def __repr__(self):
-        return "Task('{}')".format(self._name)
+        return "Task('{}')".format(self.name)
 
 
 class BaseModel(object):
@@ -157,9 +157,13 @@ class BaseModel(object):
             name, var_type = feature['name'], feature['type']
             default = feature.get('default', None)
             categories = feature.get('categories', None)
+            accepts_missing = feature.get('accepts_missing', True)
             if name not in df.columns:
                 df[name] = default or np.nan
             else:
+                has_missing = df[name].isnull().any()
+                if has_missing and not accepts_missing:
+                    raise ValueError(f'Feature {name} has unexpected missing values')
                 if var_type == 'numeric':
                     var_type = float
                 elif var_type == 'string':
@@ -167,21 +171,18 @@ class BaseModel(object):
                 elif var_type == 'category':
                     if categories is not None:
                         var_type = CategoricalDtype(categories=categories, ordered=True)
-                        new_cat = set(df[name].unique()).difference(categories)
+                        new_cat = set(df[name].dropna().unique()).difference(categories)
                         if len(new_cat):
-                            msg = 'Unexpected categorical value for {}: {}'.format(name, new_cat)
-                            raise ValueError(msg)
+                            raise ValueError(f'Unexpected categorical value for {name}: {new_cat}')
                     else:
-                        msg = 'Missing "categories" for "{}" in metadata'.format(name)
-                        raise ValueError(msg)
+                        raise ValueError(f'Missing "categories" for "{name}" in metadata')
                 else:
-                    msg = 'Unknown variable type: {}'.format(var_type)
-                    raise ValueError(msg)
+                    raise ValueError(f'Unknown variable type: {var_type}')
 
                 if default is None:
-                    df[name] =  df[name].astype(var_type)
+                    df[name] = df[name].astype(var_type)
                 else:
-                    df[name] =  df[name].fillna(default).astype(var_type)
+                    df[name] = df[name].fillna(default).astype(var_type)
             # TO DO: add more validation logic
         return df
 

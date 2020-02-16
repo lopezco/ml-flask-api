@@ -28,5 +28,6 @@ def metadata_from_dataframe(df):
             tmp = {'name': c, 'type': 'string'}
         else:
             raise ValueError('Unknown type for {}'.format(c))
+        tmp['accepts_missing'] = df[c].isnull().any()
         metadata.append(tmp)
     return metadata
