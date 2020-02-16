@@ -34,9 +34,9 @@ or one of the scripts in the `./example` folder
     {
         "model": trained_model,
         "metadata": {"features": [
-            {"name": "feature1", "type": "numeric"},
-            {"name": "feature2", "type": "numeric", "default": -1},
-            {"name": "feature3", "type": "category", "categories": ["A", "B"]}]}
+            {"name": "feature1", "type": "numeric", "accepts_missing": True},
+            {"name": "feature2", "type": "numeric", "default": -1, "accepts_missing": False},
+            {"name": "feature3", "type": "category", "categories": ["A", "B"], "accepts_missing": True}]}
     }
     ```
 

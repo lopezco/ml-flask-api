@@ -12,9 +12,9 @@ model = LGBMClassifier()
 model.fit(df, [0, 0, 1])
 to_save = dict(model=model,
                metadata={"features": [
-                   {"name": "feature1", "type": "numeric"},
-                   {"name": "feature2", "type": "numeric", "default": -1},
-                   {"name": "feature3", "type": "category", "categories": ["A", "B"]}]})
+                   {"name": "feature1", "type": "numeric", "accepts_missing": False},
+                   {"name": "feature2", "type": "numeric", "default": -1, "accepts_missing": True},
+                   {"name": "feature3", "type": "category", "accepts_missing": True, "categories": ["A", "B"]}]})
 
 with open(model_path, 'wb') as fo:
     joblib.dump(to_save, fo)
