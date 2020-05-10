@@ -6,7 +6,6 @@ from threading import Thread
 from copy import deepcopy
 from functools import wraps
 
-
 try:
     import shap
 except ImportError:
@@ -34,7 +33,9 @@ def _check(ready=True, explainable=False, task=None):
                     raise RuntimeError('This method is not available for {} tasks'.format(self_task.name.lower()))
             # Execute function
             return func(*args, **kwargs)
+
         return wrapper
+
     return actual_decorator
 
 
@@ -43,15 +44,16 @@ class Task(int):
     _BINARY_CLASSIFICATION, _MULTILABEL_CLASSIFICATION = 2, 3
 
     def __new__(cls, name):
-        assert(isinstance(name, str))
+        assert (isinstance(name, str))
         try:
             val = getattr(cls, '_{}'.format(name.upper()))
         except AttributeError:
             raise AttributeError('Unknown task-name: {}'.format(name))
         else:
-            return  super(Task, cls).__new__(cls, val)
+            return super(Task, cls).__new__(cls, val)
 
     def __init__(self, name):
+        super(Task, self).__init__()
         self.name = name.upper()
         self._id = int(self)
 
@@ -159,18 +161,17 @@ class BaseModel(object):
         return [variable['name'] for variable in self.features()]
 
     @_check()
-    def _validate(self, input):
+    def _validate(self, input_data):
         if self.metadata.get('features') is None:
             raise AttributeError("Missing key 'features' in model's metadata")
-
-        # Ensure input is lislike shaped
-        input = self._get_list_from(input)
+        # Ensure input is list-like shaped
+        input_data = self._get_list_from(input_data)
         # Get feature names in order
         feature_names = [f['name'] for f in self.metadata['features']]
         # Create an index to handle multiple samples input
-        index = list(range(len(input)))
+        index = list(range(len(input_data)))
         # Create DataFrame
-        df = pd.DataFrame(input, index=index, columns=feature_names)
+        df = pd.DataFrame(input_data, index=index, columns=feature_names)
         # Convert features to expected types
         for feature in self.metadata['features']:
             name, var_type = feature['name'], feature['type']
@@ -317,7 +318,7 @@ class BaseModel(object):
         """Get model information.
 
         This function gives complete description of the model.
-        The returned ibject contais the following keys:
+        The returned object contains the following keys:
 
             metadata (:class:`dict`): Model metadata (see :func:`~src.model.base.BaseModel.metadata`).
 
@@ -344,16 +345,17 @@ class BaseModel(object):
         Raises:
             RuntimeError: If the model is not ready.
         """
-        result = {}
-        # Metadata
-        result['metadata'] = self._metadata
-        # Info from model
-        result['model'] = {
-            'type': str(type(self._model)),
-            'predictor_type': self._get_predictor_type(),
-            'is_explainable': self._is_explainable,
-            'task': self.task_type(as_text=True),
-            'family': self.family
+        result = {
+            # Metadata
+            'metadata': self._metadata,
+            # Info from model
+            'model': {
+                'type': str(type(self._model)),
+                'predictor_type': self._get_predictor_type(),
+                'is_explainable': self._is_explainable,
+                'task': self.task_type(as_text=True),
+                'family': self.family
+            }
         }
         if self._is_classification:
             result['model']['class_names'] = self._get_class_names()

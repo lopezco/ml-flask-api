@@ -16,10 +16,10 @@ class SklearnModel(BaseModel):
     This class can handle models that respect the scikit-learn API. This
     includes `sklearn.pipeline.Pipeline <https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html>`_.
 
-    The data coming from a request if validated using the metadata setored with
+    The data coming from a request if validated using the metadata stored with
     the model. The data fed to the `predict`, `predict_proba`, `explain` handle
     `preprocess` should be a dictionary that object must contain one key per
-    feature or a list of such dictionaries (recors).
+    feature or a list of such dictionaries (records).
     Example: `{'feature1': 5, 'feature2': 'A', 'feature3': 10}`
 
     Args:
@@ -80,24 +80,24 @@ class SklearnModel(BaseModel):
 
         Returns:
             dict:
-                Processed data if a preprocessing function was definded in the
+                Processed data if a preprocessing function was defined in the
                 model's metadata. The format must be the same as the input.
 
         Raises:
             RuntimeError: If the model is not ready.
         """
-        input = self._validate(features)
+        df = self._validate(features)
         if hasattr(self._model, 'transform'):
-            return self._model.transform(input)
+            return self._model.transform(df)
         else:
             return input
 
     @_check()
     def predict(self, features):
-        """Make a prediciton
+        """Make a prediction
 
         Prediction function that returns the predicted class. The returned value
-        is an integer when the class names are not expecified in the model's
+        is an integer when the class names are not specified in the model's
         metadata.
 
         Args:
@@ -113,13 +113,13 @@ class SklearnModel(BaseModel):
         Raises:
             RuntimeError: If the model is not ready.
         """
-        input = self._validate(features)
-        result = self._model.predict(input)
+        df = self._validate(features)
+        result = self._model.predict(df)
         return result
 
     @_check(task='classification')
     def predict_proba(self, features):
-        """Make a prediciton
+        """Make a prediction
 
         Prediction function that returns the probability of the predicted
         classes. The returned object contais one value per class. The keys of
@@ -137,8 +137,8 @@ class SklearnModel(BaseModel):
         Raises:
             RuntimeError: If the model isn't ready or the task isn't classification.
         """
-        input = self._validate(features)
-        prediction = self._model.predict_proba(input)
+        df = self._validate(features)
+        prediction = self._model.predict_proba(df)
         df = pd.DataFrame(prediction, columns=self._get_class_names())
         return df.to_dict(orient='records')
 
@@ -146,8 +146,8 @@ class SklearnModel(BaseModel):
     def explain(self, features, samples=None):
         """Explain the prediction of a model.
 
-        Explanation function that returns the SHAP value for each feture.
-        The returned object contais one value per feature of the model.
+        Explanation function that returns the SHAP value for each feature.
+        The returned object contains one value per feature of the model.
 
         If `samples` is not given, then the explanations are the raw output of
         the trees, which varies by model (for binary classification in XGBoost
@@ -211,7 +211,7 @@ class SklearnModel(BaseModel):
                 # Ex: LGBMClassifier
                 process_shap_values = True
             else:
-                raise ValueError('Unknown objet class for shap_values variable')
+                raise ValueError('Unknown object class for shap_values variable')
             # Format output
             for i, c in enumerate(class_names):
                 if process_shap_values:
