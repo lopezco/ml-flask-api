@@ -13,7 +13,7 @@ except ImportError:
 # https://github.com/Microsoft/LightGBM/blob/master/examples/python-guide/advanced_example.py#L82-L84
 
 
-class SklearnModel(BaseModel):
+class LGBMModel(BaseModel):
     """Class that handles the loaded model.
 
     This class can handle models that respect the scikit-learn API. This
@@ -44,25 +44,11 @@ class SklearnModel(BaseModel):
 
     @_check()
     def _get_predictor(self):
-        # TODO
-        return SklearnModel._extract_base_predictor(self._model)
+        return self._model
 
     @_check(task='classification')
     def _get_class_names(self):
-        # TODO
-        return np.array(self._get_predictor().classes_, str)
-
-    # Private (static)
-    @staticmethod
-    def _extract_base_predictor(model):
-        # TODO
-        model_name = type(model).__name__
-        if model_name == 'Pipeline':
-            return SklearnModel._extract_base_predictor(model.steps[-1][1])
-        elif 'CalibratedClassifier' in model_name:
-            return SklearnModel._extract_base_predictor(model.base_estimator)
-        else:
-            return model
+        return np.array(self._metadata.get('target_mapping').values(), str)
 
     # Public
     @_check()
@@ -84,16 +70,10 @@ class SklearnModel(BaseModel):
         Raises:
             RuntimeError: If the model is not ready.
         """
-        # TODO
-        input = self._validate(features)
-        if hasattr(self._model, 'transform'):
-            return self._model.transform(input)
-        else:
-            return input
+        return self._validate(features)
 
     @_check()
     def predict(self, features):
-        # TODO
         """Make a prediciton
 
         Prediction function that returns the predicted class. The returned value
@@ -115,6 +95,7 @@ class SklearnModel(BaseModel):
         """
         input = self._validate(features)
         result = self._model.predict(input)
+        # TODO : set threshold
         return result
 
     @_check(task='classification')
@@ -139,7 +120,7 @@ class SklearnModel(BaseModel):
         """
         # TODO
         input = self._validate(features)
-        prediction = self._model.predict_proba(input)
+        prediction = self._model.predict(input)
         df = pd.DataFrame(prediction, columns=self._get_class_names())
         return df.to_dict(orient='records')
 

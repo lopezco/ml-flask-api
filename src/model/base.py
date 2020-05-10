@@ -122,18 +122,37 @@ class BaseModel(object):
         # SHAP
         model_name = type(clf).__name__
         self._is_explainable = SHAP_AVAILABLE and (model_name in self._explainable_models)
-        # Feature importances
+        # Feature importance
         if hasattr(clf, 'feature_importances_'):
             importance = clf.feature_importances_
+        elif hasattr(clf, 'feature_importance'):
+            importance = clf.feature_importance()
+        else:
+            importance = None
+        if importance is not None:
             for imp, feat in zip(importance, metadata['features']):
                 feat['importance'] = imp
         # Set model task type
-        if not hasattr(clf, 'classes_'):
-            self._task_type = Task('REGRESSION')
-        elif len(clf.classes_) <= 2:
-            self._task_type = Task('BINARY_CLASSIFICATION')
-        elif len(clf.classes_) > 2:
-            self._task_type = Task('MULTILABEL_CLASSIFICATION')
+        if self._metadata.get("target_mapping") is None:
+            if not hasattr(self._metadata, 'classes_'):
+                self._task_type = Task('REGRESSION')
+            elif len(clf.classes_) <= 2:
+                self._task_type = Task('BINARY_CLASSIFICATION')
+            elif len(clf.classes_) > 2:
+                self._task_type = Task('MULTILABEL_CLASSIFICATION')
+            else:
+                raise ValueError('No target mapping defined and it could not '
+                                 'be automatically detected from model')
+        else:
+            target_mapping = self._metadata.get("target_mapping")
+            if target_mapping is None:
+                self._task_type = Task('REGRESSION')
+            elif len(target_mapping.keys()) <= 2:
+                self._task_type = Task('BINARY_CLASSIFICATION')
+            elif len(target_mapping.keys()) > 2:
+                self._task_type = Task('MULTILABEL_CLASSIFICATION')
+            else:
+                raise ValueError('Error in target mapping definition')
 
     @_check()
     def _feature_names(self):
